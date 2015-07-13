@@ -41,3 +41,5 @@ Thumbs.db
 
 *.fits
 data/*.fits
+arclamps/*.fits
+test/*.fits
