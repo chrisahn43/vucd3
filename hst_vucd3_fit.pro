@@ -170,9 +170,12 @@ for i=1,40 do begin
    endfor
    modelflux[i-1]=temp
 endfor
-
-djs_plot,rad,modelflux,psym=2
+set_plot,'ps'
+device,filename='hst_fits.ps',/color
+djs_plot,rad,modelflux,psym=2,xtitle='radius',ytitle='flux',charsize=1.5,charthick=4,xthick=3,ythick=3
 djs_oplot,rad,photflux,psym=2,color='blue'
+device,/close
+set_plot,'x'
 percentdiff=((photflux-modelflux)/photflux)*100
 print,percentdiff
 stop
