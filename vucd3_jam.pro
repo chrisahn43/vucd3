@@ -46,8 +46,10 @@ pro vucd3_jam
   endfor
   stop
 
-  ;assume 5 degrees of freedom
-  djs_plot,alog10(out.outmbh),out.inbeta,psym=3,xtitle='log(MBH)',ytitle='!9b!x',chars=2,xrange=[6.0,7.5],/xsty
+                                ;assume 5 degrees of freedom
+  set_plot,'ps'
+  device,filename='mbhbeta.ps',/color
+  djs_plot,alog10(out.outmbh),out.inbeta,psym=3,xtitle='log(MBH)',ytitle='\beta',chars=2,xrange=[6.0,7.5],/xsty,charsize=1.5,charthick=4,xthick=3,ythick=3
 
   sig1ind=where(out.chi2 lt MPCHILIM(0.68,5))
   djs_oplot,ALOG10(out[sig1ind].outmbh),out[sig1ind].inbeta,psym=4,thick=5
@@ -57,12 +59,16 @@ pro vucd3_jam
 
   sig3ind=WHERE(out.chi2 LT MPCHILIM(0.997,5) AND out.chi2 GE MPCHILIM(0.95,5))
   djs_oplot,ALOG10(out[sig3ind].outmbh),out[sig3ind].inbeta,psym=1,thick=2
+  device,/close
   stop
-  ;ML-ratio
-  djs_plot,out.ml,alog10(out.outmbh),psym=3,ytitle='log(MBH)',xtitle='M/L_i',chars=2,ysty=1,yrange=[6.0,7.5]
+                                ;ML-ratio
+  device,filename='mlmbh.ps',/color
+  djs_plot,out.ml,alog10(out.outmbh),psym=3,ytitle='log(MBH)',xtitle='M/L_i',chars=2,ysty=1,yrange=[6.0,7.5],charsize=1.5,charthick=4,xthick=3,ythick=3
   djs_oplot,out[sig1ind].ml,ALOG10(out[sig1ind].outmbh),psym=4;,thick=5
   djs_oplot,out[sig2ind].ml,ALOG10(out[sig2ind].outmbh),psym=5,thick=4
   djs_oplot,out[sig3ind].ml,ALOG10(out[sig3ind].outmbh),psym=1,thick=2
+  device,/close
+  set_plot,'x'
   stop
 ; The model is similar but not identical to the adopted kinematics!
 ;SigmapSF and NORMPSF are for kinematic data

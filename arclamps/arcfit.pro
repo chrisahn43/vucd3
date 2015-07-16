@@ -36,9 +36,13 @@ pro arcfit
 
   r=fltarr(n_elements(arclamb))
   r=arclamb/arcfwhm
-  djs_plot,arclamb,r,psym=2
+  set_plot,'ps'
+  device,filename='spectralres.ps',/color
+  djs_plot,arclamb,r,psym=2,xtitle='wavelength (\AA)',ytitle='Spectral Resolution',yran=[2500,6200],/ysty,charsize=1.5,charthick=4,xthick=3,ythick=3
   fit=linfit(arclamb,r)
   y=fit[0]+fit[1]*arclamb
   djs_oplot,arclamb,y,color='blue'
+  device,/close
+  set_plot,'x'
   stop
 END
