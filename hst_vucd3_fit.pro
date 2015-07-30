@@ -112,9 +112,9 @@ skylev = mean(avgsky) ; counts/pixel
 img = img - skylev    ; subtract sky
 ;expscale=[sxpar(h,'D001SCAL'),sxpar(h,'D002SCAL'),sxpar(h,'D003SCAL')]
 scale = 0.027;mean(expscale) ; arcsec/pixel
-ngauss = 15
+ngauss = 10
 minlevel = 0.0001 ; counts/pixel
-
+imgsize=size(img,/dim)
 readcol,'tinytim_fits.dat',normPSF,sigmaPSF,q,format='F,F,F'
 ;sigmaPSF = [0.494, 1.44, 4.71, 13.4, 47]      ; In PC1 pixels
 ;normPSF = [0.294, 0.559, 0.0813, 0.0656, 0.0001]  ; total(normPSF)=1
@@ -123,7 +123,7 @@ readcol,'tinytim_fits.dat',normPSF,sigmaPSF,q,format='F,F,F'
 ; to experiment with different values of the FRACTION keyword, before adopting
 ; given values of Eps, Ang, Xc, Yc.
 
-find_galaxy, img, majorAxis, eps, ang, xc, yc,FRACTION=0.24, /PLOT
+find_galaxy, img, majorAxis, eps, ang, xc, yc,FRACTION=0.05, /PLOT
 
 ; Perform galaxy photometry
 
@@ -133,7 +133,7 @@ sectors_photometry, img, eps, ang, xc, yc, radius, angle, counts, MINLEVEL=minle
 ;set_plot,'ps'
 ;device,filename='vucd3_photfits.ps'
 MGE_fit_sectors, radius, angle, counts, eps, $
-    NGAUSS=ngauss, SIGMAPSF=sigmaPSF, NORMPSF=normPSF, SOL=sol, SCALE=scale;,/LINEAR
+    NGAUSS=ngauss, SIGMAPSF=sigmaPSF, NORMPSF=normPSF, SOL=sol, SCALE=scale
 ;device,/close
 ;set_plot,'x'
 ;stop
@@ -153,27 +153,67 @@ modelweight=peakbright
 modelsig=sol[1,*]
 photflux=fltarr(40)
 modelflux=fltarr(40)
-rad=fltarr(40)
-for i=1,40 do begin
-   rad[i-1]=2*i
-   asdf=djs_phot(xc,yc,rad[i-1],0.,img,skyval=skyval)
-   photflux[i-1]=asdf
+modelflux2=fltarr(40)
+rad=findgen(40)*3+3
+minrad=findgen(40)*3
+modelimg=fltarr(imgsize[0],imgsize[1])
+x=[reverse(findgen(xc))+1,findgen(imgsize[0]-xc)]
+y=[reverse(findgen(yc))+1,findgen(imgsize[1]-yc)]
+for i=0,n_elements(x)-1 do begin
+   for j=0,n_elements(y)-1 do begin
+      temp=0.
+      for k=0,n_elements(modelweight)-1 do begin
+         temp+= (modelweight[k]*exp(-(1./(2*modelsig[k]^2))*(x[i]^2+(y[j]^2/q[k]^2))))
+      endfor
+      modelimg[i,j]=temp
+    endfor
 endfor
+;writefits,'hst_mge_vucd3.fits',modelimg
 
+for i=0,n_elements(rad)-1 do begin
+   maxflux_phot=djs_phot(xc,yc,rad[i],0.,img,skyval=skyval)
+   minflux_phot=djs_phot(xc,yc,minrad[i],0.,img,skyval=skyval)
+   maxflux_model=djs_phot(xc,yc,rad[i],0.,modelimg,skyval=skyval)
+   minflux_model=djs_phot(xc,yc,minrad[i],0.,modelimg,skyval=skyval)
+   photflux[i]=maxflux_phot-minflux_phot
+   modelflux[i]=maxflux_model-minflux_model
+endfor
 for i=1,40 do begin
-   modelrad=(0.01*findgen((200*i)+1))
+   modelrad=(0.01*findgen((300*i))+0.01)
    temp=0.
    for j=0,n_elements(modelrad)-2 do begin
       for k=0,n_elements(modelweight)-1 do begin
-         temp+= (modelweight[k]*exp(-(1./(2*modelsig[k]^2))*((modelrad[j])^2)))*(2*!PI*modelrad[j])*(modelrad[j+1]-modelrad[j])
+         temp+= (modelweight[k]*exp(-(1./(2*modelsig[k]^2))*((modelrad[j])^2)))*(2*!PI*modelrad[j])*(modelrad[j+1]-modelrad[j]);multiply by q
       endfor
    endfor
-   modelflux[i-1]=temp
+   maxflux=temp
+   if i gt 1 then begin
+      minmodelrad=(0.01*findgen(300*(i-1))+0.01)
+      temp2=0.
+      for j=0,n_elements(minmodelrad)-2 do begin
+         for k=0,n_elements(modelweight)-1 do begin
+            temp2+= (modelweight[k]*exp(-(1./(2*modelsig[k]^2))*((minmodelrad[j])^2)))*(2*!PI*minmodelrad[j])*(minmodelrad[j+1]-minmodelrad[j]) ;multiply by q
+         endfor
+      endfor
+      minflux=temp2
+      modelflux2[i-1]=maxflux-minflux
+   endif else begin
+      modelflux2[i-1]=maxflux
+   endelse
+   
 endfor
+;stop
+
 set_plot,'ps'
 device,filename='hst_fits.ps',/color
 djs_plot,rad,modelflux,psym=2,xtitle='radius',ytitle='flux',charsize=1.5,charthick=4,xthick=3,ythick=3
 djs_oplot,rad,photflux,psym=2,color='blue'
+;djs_oplot,rad,modelflux2,psym=2,color='green'
+device,/close
+device,filename='hst_fitsall.ps',/color
+djs_plot,rad,modelflux,psym=2,xtitle='radius',ytitle='flux',charsize=1.5,charthick=4,xthick=3,ythick=3
+djs_oplot,rad,photflux,psym=2,color='blue'
+djs_oplot,rad,modelflux2,psym=2,color='green'
 device,/close
 set_plot,'x'
 percentdiff=((photflux-modelflux)/photflux)*100
