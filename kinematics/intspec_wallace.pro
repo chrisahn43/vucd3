@@ -1,4 +1,5 @@
 @ppxf_wallace.pro
+@ppxf_phoenix.pro
 PRO INTSPEC_WALLACE,MIN_SN=min_sn
 
 initvel=713.
@@ -17,9 +18,11 @@ snind=WHERE(lambda GT 22140. AND lambda LT 22600.)
 snarr=FLTARR(nfiles)
 
 
-outplotfile='vor_out/intspec_wallace_best8.ps'
-myplot,file=outplotfile,ysize=9,yoff=1,/inches
-!P.MULTI=[0,1,2]
+;outplotfile='vor_out/intspec_wallace_best8.ps'
+;myplot,file=outplotfile,ysize=9,yoff=1,/inches
+;!P.MULTI=[0,1,2]
+;set_plot,'ps'
+;device,filename='./plotsfit/phoenix_alpha.ps',/color
 outfile='vor_out/intspec_wallace_best8.dat'
 OPENW,1,outfile,WIDTH=1000
 FOR i=0,nfiles-1 DO BEGIN
@@ -38,8 +41,8 @@ ENDFOR
 CLOSE,1
 
 
-DEVICE,/close
-SET_PLOT,'x'
+;DEVICE,/close
+;SET_PLOT,'x'
 !P.MULTI=[0,1,1]
 
 

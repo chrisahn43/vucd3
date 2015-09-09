@@ -1,0 +1,45 @@
+	This directory contains material associated with the paper
+"High-Resolution Spectra of Ordinary Cool Stars in the K Band" by L.
+Wallace and K. Hinkle, which has been accepted for publication in ApJS.
+The user is referred to the paper for complete details.
+
+        The spectral data files are in subdirectories named for the
+abbreviation of the object with the form xxxxx/nnnn.dat, where xxxxx is the
+abbreviation for the object name and nnnn.dat is the lead frequency for one of
+the panels of the atlas plots.  Thus the file gldra/4375.dat has the spectrum of
+greek l (lambda) Dra beginning at 4375 cm-1 and extending to 4400 cm-1, with a
+small overlap at each end.  The full list of abbreviations, the object names
+and a summary description of the file contents follows:
+
+     Abbreviation	 Object			Contents
+
+	61cyg		61 Cyg B	one spectrum & transmission
+	61uma		61 UMa		one specrtum & transmission
+	gaboo		alpha Boo	two spectra
+	gaher		alpha Her	two spectra
+	gaori		alpha Ori	two spectra
+	gasge		alpha Sge	one spectrum & transmission
+	gccyg		chi Cyg		one spectrum
+	ggcyg		gamma Cyg	one spectrum & transmission
+	gl411		Gleise 411	one spectrum & transmission
+	gldra		lambda Dra	one spectrum
+	gocet		omicron Cet	one spectrum
+	gzcep		zeta Cep	one spectrum & transmission
+	rxboo		RX Boo		one spectrum & transmission
+	sceph		S Cep		one spectrum
+	solar		Sun		one spectrum
+	sspot		Sunspot		one spectrum
+	txpsc		TX Psc		one spectrum
+
+	Each spectral data file has the frequency scale as the first column,
+and then one or two additional columns for one or two spectra or one spectrum
+and the atmospheric transmission function.  The first entry in each spectrum
+column is an approximate continuum level and the second is the Doppler shift in
+cm-1 needed to correct the spectrum to a laboratory frequency scale.  For the
+non-solar spectra, the next 1551 entries give the spectrum (derived from the
+sum of the forward and reverse scans) and the next 1551 entries give the
+difference of the forward and backward scans as a measure of the noise in the
+spectrum.
+
+	A separate file, testplot, will produce a simple sample plot of
+the spectra.

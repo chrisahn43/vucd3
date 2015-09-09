@@ -1,0 +1,34 @@
+- Templates only extend out to 23969 Angstroms.  Would need to cut off
+  fit at 2.394 microns or something like that.
+
+- Many templates seem to have emission at 2.37 microns.  Looks like
+  this may be where orders are glued together -- the 'emission' is
+  very rounded.  gaboo_out.fits is a good template without much of
+  this problem.  Looking at the actual data, this is indeed what is
+  happening -- in most of the templates there are little holes, the
+  biggest of which is at 2.37 microns.  This combined with my spline
+  interpolation in generating the templates seems to be causing
+  issues.  Even gaboo has a 5 Angstrom break, while others have 10
+  angstrom breaks (compared to 0.1 Angstrom pixels).
+
+- These breaks clearly will cause problems with fits but below 2.37
+  microns, they are <4 angstroms which is only two pixels in my final
+  spectrum.  Probably not so bad.  Could potentially propogate this
+  through.
+
+
+ggcyg_out.fits      12 F8 Ib     ;no CO lines at all
+gzcep_out.fits      17 K1.5 Ib   ;looks fine below 2.37
+gaori_out.fits      26 M2 Ia	 ;has data at 2.325 microns that may be a problem
+gaher_out.fits     -30 M5 Ib-II  ;looks fine below 2.37
+gasge_out.fits      18 G1 III    ;no CO lines at all
+gaboo_out.fits       0 K1 III    ;look fine below 2.37, but has very deep line at 2.352 microns
+gldra_out.fits      48 M0 III    ;fine below 2.37 microns
+rxboo_out.fits      37 M8 III    ;a number of large breaks, 2.325, 2.358 2.37 etc, probably not good
+61uma_out.fits      41 G2 V	 ;looks ok below 2.37
+61cyg_out.fits     -34 G8 V	 ;problems at 2.352
+gl411_out.fits     -47 M2 V	 ; fine below 2.37
+gocet_out.fits     121 M5.5 Mira
+agccyg_out.fits       8 S6+ Mira
+sceph_out.fits      -8 C7 Mira
+txpsc_out.fits      10 N0 C6?

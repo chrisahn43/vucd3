@@ -3,9 +3,9 @@ pro ppxf_wallace,lambda,spec,var,fwhm,OUTRV=outrv,OUTDISP=outdisp,OUTSOL=sol,DOE
 
 loadct,12,/silent
 minfit=2.295e4  ;part of the target spectra to extract
-maxfit=2.395e4
+maxfit=2.395e4;95e4
 mintemp=2.28e4 ;part of the template to use
-maxtemp=2.40e4
+maxtemp=2.4e4 ;2.4
 velscale=25 ;for the data
 velscaletemp=1. ;for the templates
 tempbin=FIX(velscale/velscaletemp)
@@ -27,10 +27,10 @@ wallacesave='wallace_templates.idl'
 IF (FILE_TEST(wallacesave) EQ 0) THEN BEGIN
 ;READCOL,'../wallace/wallace_table.dat',wallaceroot,rv,FORMAT='A,X,F',/SILENT
 ;wallace='../wallace/'+STRLOWCASE(wallaceroot)+'_v1r.fits'
-READCOL,'../wallace96/wallace_rvcor.dat',wallacefile,rv,spclass,lumclass,FORMAT='A,I,F,F',/SILENT
+READCOL,'./wallace96/wallace_rvcor.dat',wallacefile,rv,spclass,lumclass,FORMAT='A,I,F,F',/SILENT
 wallaceroot=STRMID(wallacefile,0,5)
-wallace='../wallace96/'+STRLOWCASE(wallacefile)
-wallacedqfiles='../wallace96/'+STRLOWCASE(wallaceroot)+'_err.fits'
+wallace='./wallace96/'+STRLOWCASE(wallacefile)
+wallacedqfiles='./wallace96/'+STRLOWCASE(wallaceroot)+'_err.fits'
 goodtemp=[1,2,3,5,6,8,9,10];wallace templates to use
 nfiles=N_ELEMENTS(goodtemp)
 wallaceflux=READFITS(wallace[0],head)
@@ -129,7 +129,7 @@ badind=badind[1:*]
 linearr=FLTARR(N_ELEMENTS(lamlin))
 ;linearr[badind]=1
 
-
+stop
 ;
 ;templates=templates[*,20]
 start = [initvel, 3.*velscale] ; (km/s), starting guess for [V,sigma]

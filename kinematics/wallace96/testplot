@@ -1,0 +1,48 @@
+! sample MONGO plot of both alpha Boo spectra and the differences
+terminal 1
+erase
+data gaboo4725
+! read continuum level & Doppler shift for first spectrum
+lines 1 2
+ycol 1
+set \0 y(1) ! the continuum level
+set \1 y(2) ! the Doppler shift
+! read & plot first spectrum
+lines 3 1553
+xcol 1
+ycol 2
+limits x(101) x(1451) -.2 1.1
+box
+id
+set \2 x(101) - \1
+set \3 x(1451) - \1
+set \4 -.2 * \0
+set \5 1.1 * \0
+limits \2 \3 \4 \5
+connect
+! read & plot first difference
+lines 1554 3104
+xcol 1
+ycol 2
+connect
+! read continuum level & Doppler shift for second spectrum
+lines 1 2
+ycol 2
+set \0 y(1) ! the continuum level
+set \1 y(2) ! the Doppler shift
+! read & plot second spectrum
+lines 3 1553
+xcol 1
+ycol 3
+set \2 x(101) - \1
+set \3 x(1451) - \1
+set \4 -.2 * \0
+set \5 1.1 * \0
+limits \2 \3 \4 \5
+connect
+! read & plot second difference
+lines 1554 3104
+xcol 1
+ycol 3
+connect
+end

@@ -1,5 +1,5 @@
 pro vucd3_jam
-  infile='vucd3_radial.dat'
+  infile='../kinematics/vor_out/intspec_wallace_best8.dat'
   READCOL,infile,filename,rin,rout,rav,sn,chi,vel,velmc,velerr,disp,dispmc,disperr,h3,h3mc,h3err,h4,h4mc,h4err,spclass,spclassmc,spclasserr,lumclass,lumclassmc,lumclasserr,nodispchi,FORMAT='A,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F'
   readcol,'vucd3_mge_output.dat',Intensity,sigmaarc,q,format='F,F,F'
 
@@ -13,8 +13,8 @@ pro vucd3_jam
   sigma_pot = sigmaarc
   qobs_pot = q
   distance = 16.5              ; Assume Virgo distance in Mpc (Mei et al. 2007)
-  ml=findgen(25)*0.2+0.1
-  mbhs = [0,10^(findgen(10)*0.2+5.0)] ; Black hole mass in solar masses
+  ml=findgen(50)*0.1+0.1
+  mbhs = [0,10^(findgen(11)*0.2+5.0)] ; Black hole mass in solar masses
   betas=[0.];findgen(10)*0.2-1.
   inclinations=[90.];[50.,60.,70.,80.,90.]
   nmbhs=n_elements(mbhs)
@@ -48,12 +48,33 @@ pro vucd3_jam
   b=where(out.chi2 eq min(out.chi2))
   set_plot,'ps'
   device,filename='oned_bestfit_rms.ps',/color
-  djs_plot,xbin,disp,psym=4,ytitle='Dispersion (km/s)',xtitle='Radius (arcseconds)',xran=[0.,0.52],/xsty,charsize=1.5,charthick=4,xthick=3,ythick=3,symsize=2
+  djs_plot,xbin,disp,psym=4,ytitle='Dispersion (km/s)',xtitle='Radius (arcseconds)',xran=[0.,0.52],yran=[25,55],/xsty,charsize=1.5,charthick=4,xthick=3,ythick=3,symsize=2
   oploterr,xbin,disp,disperr
   djs_oplot,xbin,rms_nobh,color='red',thick=4
   djs_oplot,xbin,out[b].rms,color='blue',thick=4
   help,out[a[c]]
   help,out[b]
+  device,/close
+  set_plot,'x'
+  stop
+  bestmbh=fltarr(n_elements(mbhs))
+  bestml=fltarr(n_elements(mbhs))
+  bestchi2=fltarr(n_elements(mbhs))
+  for i=0,n_elements(mbhs)-1 do begin
+     ind=where(out.outmbh eq mbhs[i])
+     index=where(out[ind].chi2 eq min(out[ind].chi2))
+     bestmbh[i]=out[ind[index]].outmbh
+     bestml[i]=out[ind[index]].ml
+     bestchi2[i]=out[ind[index]].chi2
+     if (bestmbh[i] eq 0.) then bestmbh[i]=1.
+   endfor
+
+  set_plot,'ps'
+  device,filename='best_blackholevsml.ps',/color
+  djs_plot,bestml,alog10(bestmbh),psym=4,xran=[0.9,4.5],yran=[4.5,7.5],/xsty,/ysty,xtitle='M/L_i',ytitle='Log(MBH)',charsize=1.5,charthick=4,xthick=3,ythick=3
+  device,/close
+  device,filename='best_chi2vsml.ps',/color
+  djs_plot,bestml,bestchi2,psym=4,xran=[0.9,4.6],yran=[0.,3.5],/xsty,/ysty,xtitle='M/L_I',ytitle='(\chi)^2',charsize=1.5,charthick=4,xthick=3,ythick=3
   device,/close
   set_plot,'x'
 ;  items=['chi2 ~1.132 Mbh = 6.3e6 M/L=2.1','chi2=0.636 Mbh = 6.3e6 M/L=2.3','Mbh = 0 M/L=2.1']

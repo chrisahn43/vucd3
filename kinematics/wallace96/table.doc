@@ -1,0 +1,37 @@
+CDROM/APJS/V107/P312    Ordinary Cool Stars in K Band (Wallace & Hinkle 1997)
+================================================================================
+High Resolution Spectra of Ordinary Cool Stars in the K Band
+      L. Wallace and K. Hinkle
+      <1996, ApJS, 107, 312>
+      =1996ApJS..107..312W
+================================================================================
+
+Abstract:
+     We present an atlas of high-resolution (R >= 45,000) 2.02-2.41 um
+  spectra of 12 representative stars, a sunspot, three Mira variables,
+  and a carbon star.  The star sample, MK spectral types from about
+  early-G to about mid-M, with luminosity classes drwarf to supergiant.
+  The Mira variables are one each of M, S, and C types.  All of the
+  spectra have been corrected for atmospheric absorption and have the
+  major spectral features labeled with responsible absorbers.  Spectra
+  and line lists are also available on the AAS CD-ROM series Vol. 7. The
+  2.0-2.4 um region includes molecular vibration-rotation transitions
+  from the CO first overtone, HF fundamental, and several bands of H2O
+  as well as the CN red system, an electronic transition.  The relative
+  contribution of H2O versus CN in cool star spectra is discussed.
+  Atomic features include clean measurable lines of H, C, Na, Mg, Al,
+  Si, S, Ca, Sc, Ti, V, and Fe.  We discuss temperature and luminosity
+  spectral indicators and the effects of blending on these indicators at
+  lower spectral resolution.
+
+Keywords: atlases -- infrared: stars -- line: identification -- 
+  stars: late-type
+
+Description:
+  The spectra are contained in subdirectories named for the object.  See
+  the author-supplied documentation in file readme.doc for more detailed
+  information.
+
+
+================================================================================
+(End)                                               Lee Brotzman [ADS] 06-May-97

@@ -23,12 +23,12 @@ error=SQRT(errorsquared)
 
 phoenixsave='phoenix_templates.idl'
 IF (FILE_TEST(phoenixsave) EQ 0) THEN BEGIN
-READCOL,'../phoenix/templates.dat',phoenixfile,rv,spclass,lumclass,FORMAT='A,I,F,F',/SILENT
-phoenix='../phoenix/'+STRLOWCASE(phoenixfile)
+READCOL,'./phoenix/templates.dat',phoenixfile,rv,spclass,lumclass,FORMAT='A,I,F,F',/SILENT
+phoenix='./phoenix/'+STRLOWCASE(phoenixfile)
 goodtemp=[0,1,2,3];phoenix templates to use
 nfiles=N_ELEMENTS(goodtemp)
 phoenixflux=READFITS(phoenix[0],head)
-phoenixlam=READFITS('../phoenix/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits')
+phoenixlam=READFITS('./phoenix/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits')
 ind=WHERE(phoenixlam GT mintemp AND phoenixlam LT maxtemp,nind)
 ssp=phoenixflux[ind]
 lamRange = [phoenixlam[ind[0]],phoenixlam[ind[nind-1]]]

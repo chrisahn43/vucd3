@@ -1,0 +1,18 @@
+ggcyg_out.fits      12  3  1  F8 Ib     ;no CO lines at all
+gzcep_out.fits      17 15  1  K1.5 Ib   ;looks fine below 2.37
+gaori_out.fits      26 25  1  M2 Ia	 ;has data at 2.325 microns that may be a problem
+gaher_out.fits     -40 28  1  M5 Ib-II  ;looks fine below 2.37
+gasge_out.fits      18  5  3  G1 III    ;no CO lines at all
+gaboo_out.fits       0 15  3  K1 III    ;look fine below 2.37, but has very deep line at 2.352 microns
+gldra_out.fits      48 23  3  M0 III    ;fine below 2.37 microns
+rxboo_out.fits      37 31  3  M8 III    ;a number of large breaks, 2.325, 2.358 2.37 etc, probably not good
+61uma_out.fits      41  6  5  G2 V	 ;looks ok below 2.37
+61cyg_out.fits     -34 12  5  G8 V	 ;problems at 2.352
+gl411_out.fits     -47 25  5  M2 V	 ; fine below 2.37
+gocet_out.fits     121 70 20  M5.5 Mira
+gccyg_out.fits      8 70 20  S6+ Mira
+sceph_out.fits      -8 70 20  C7 Mira
+txpsc_out.fits      10 70 20  N0 C6?
+
+gzcep -- radial velocity of -17.83 km/sec, taken 1981 Feb 21 MJD=44656
+gasge -- radial velocity of 1.7 km/sec, taken Jul 16 1995

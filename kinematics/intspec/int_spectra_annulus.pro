@@ -23,19 +23,19 @@ FOR i=0,cubesize[2]-1 DO BEGIN
     outsky[i]=skyval*!PI*(maxradius^2-minradius^2)
     skyval=0
 
-    APER,(cube[*,*,i]-skyval),xcen,ycen,maxflux,fluxerr,sky,skyerr,1.0,[maxradius],[20,25],[-32000,32000],/SILENT,SETSKYVAL=0.0,/flu
+    APER,(cube[*,*,i]-skyval),xcen,ycen,maxflux,fluxerr,sky,skyerr,1.0,[maxradius],[20,25],[-32000,32000],/SILENT,SETSKYVAL=0.0,/flu,/EXACT,/NAN
     IF (minradius GT 0.5) THEN BEGIN
-        APER,(cube[*,*,i]-skyval),xcen,ycen,minflux,fluxerr,sky,skyerr,1.0,[minradius],[20,25],[-32000,32000],/SILENT,SETSKYVAL=0.0,/flu
+        APER,(cube[*,*,i]-skyval),xcen,ycen,minflux,fluxerr,sky,skyerr,1.0,[minradius],[20,25],[-32000,32000],/SILENT,SETSKYVAL=0.0,/flu,/EXACT,/NAN
         flux=maxflux-minflux
     ENDIF ELSE flux=maxflux
 
-    APER,(cube[*,*,i]),xcen,ycen,maxrawflux,rawfluxerr,rawsky,rawskyerr,1.0,[maxradius],[20,25],[-32000,32000],/SILENT,SETSKYVAL=0.0,/fl
+    APER,(cube[*,*,i]),xcen,ycen,maxrawflux,rawfluxerr,rawsky,rawskyerr,1.0,[maxradius],[20,25],[-32000,32000],/SILENT,SETSKYVAL=0.0,/fl,/EXACT,/NAN
     IF (minradius GT 0.5) THEN BEGIN
-        APER,(cube[*,*,i]),xcen,ycen,minrawflux,rawfluxerr,rawsky,rawskyerr,1.0,[minradius],[20,25],[-32000,32000],/SILENT,SETSKYVAL=0.0,/flu
+        APER,(cube[*,*,i]),xcen,ycen,minrawflux,rawfluxerr,rawsky,rawskyerr,1.0,[minradius],[20,25],[-32000,32000],/SILENT,SETSKYVAL=0.0,/flu,/EXACT,/NAN
         rawflux=maxrawflux-minrawflux
     ENDIF ELSE rawflux=maxrawflux
 
-    APER,(varcube[*,*,i]),xcen,ycen,varflux,varfluxerr,varsky,varskyerr,1.0,[maxradius],[20,25],[-32000,32000],/SILENT,SETSKYVAL=0.0,/flux 
+    APER,(varcube[*,*,i]),xcen,ycen,varflux,varfluxerr,varsky,varskyerr,1.0,[maxradius],[20,25],[-32000,32000],/SILENT,SETSKYVAL=0.0,/flux,/EXACT,/NAN 
     outspec[i]=flux
     outvar[i]=varflux   
     outrawspec[i]=rawflux
