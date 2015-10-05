@@ -12,16 +12,28 @@ pro vucd3_jam
   surf_pot = intensity
   sigma_pot = sigmaarc
   qobs_pot = q
+  readcol,'vucd3_mge_outputsersic.dat',Intensity,sigmaarc,q,format='F,F,F'
+
+  surf_lum = intensity
+  sigma_lum = sigmaarc
+  qobs_lum = q
+  surf_pot = intensity
+  sigma_pot = sigmaarc
+  qobs_pot = q
   distance = 16.5              ; Assume Virgo distance in Mpc (Mei et al. 2007)
   ml=findgen(50)*0.1+0.1
+  ml=findgen(25)*0.2+0.1
   mbhs = [0,10^(findgen(11)*0.2+5.0)] ; Black hole mass in solar masses
-  betas=[0.];findgen(10)*0.2-1.
+  mbhs = [0,10^(findgen(6)*0.2+6.0)]
+  betas=[0.]                    ;findgen(10)*0.2-1.
   inclinations=[90.];[50.,60.,70.,80.,90.]
   nmbhs=n_elements(mbhs)
   nmls=n_elements(ml)
   nbetas=n_elements(betas)
   ninclinations=n_elements(inclinations)
   out=REPLICATE({inmbh:0.0,inbeta:0.0,ininc:0.0,chi2:0.0,ml:0.0,outmbh:0.0,rms:fltarr(n_elements(disp))},nmbhs,nbetas,ninclinations,nmls)
+
+stop
   for i=0,nmbhs-1 do begin
      for j=0,nbetas-1 do begin
         for k=0,ninclinations-1 do begin
@@ -46,16 +58,16 @@ pro vucd3_jam
   c=where(out[a].chi2 eq min(out[a].chi2))
   rms_nobh=out[a[c]].rms
   b=where(out.chi2 eq min(out.chi2))
-  set_plot,'ps'
-  device,filename='oned_bestfit_rms.ps',/color
+;  set_plot,'ps'
+;  device,filename='oned_bestfit_rms.ps',/color
   djs_plot,xbin,disp,psym=4,ytitle='Dispersion (km/s)',xtitle='Radius (arcseconds)',xran=[0.,0.52],yran=[25,55],/xsty,charsize=1.5,charthick=4,xthick=3,ythick=3,symsize=2
   oploterr,xbin,disp,disperr
   djs_oplot,xbin,rms_nobh,color='red',thick=4
   djs_oplot,xbin,out[b].rms,color='blue',thick=4
   help,out[a[c]]
   help,out[b]
-  device,/close
-  set_plot,'x'
+;  device,/close
+;  set_plot,'x'
   stop
   bestmbh=fltarr(n_elements(mbhs))
   bestml=fltarr(n_elements(mbhs))

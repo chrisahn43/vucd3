@@ -15,35 +15,47 @@ pro int_spectra_pixel,minradius,maxradius,xcen,ycen
   outrawspec=DBLARR(cubesize[2])
   outvar=DBLARR(cubesize[2])
   outsky=DBLARR(cubesize[2])
+  r=radial_dist(cubesize[0],cubesize[1],xcen,ycen)
+  for k=0,cubesize[2]-1 do begin
+     for i=0,cubesize[0]-1 do begin
+        for j=0,cubesize[1]-1 do begin
+        
+           skyval=MEDIAN(cube[5:20,67:81,i])
+           outsky[k]=skyval*!PI*(maxradius^2-minradius^2)
+           skyval=0
+           if (r[i,j] lt maxradius) and (r[i,j] gt minradius) then begin
+              outspec[k]+=cube[i,j,k]
+              outvar[k]+=varcube[i,j,k]
+           endif
+        endfor
+     endfor
+  endfor
+;  stop
+  
 
-  for i=0,cubesize[2]-1 do begin
-     skyval=MEDIAN(cube[5:20,67:81,i])
-     outsky[i]=skyval*!PI*(maxradius^2-minradius^2)
-     skyval=0
+;     maxflux=squarephot(xcen,ycen,maxradius,0.,cube[*,*,i]-skyval)
 
-     maxflux=squarephot(xcen,ycen,maxradius,0.,cube[*,*,i]-skyval)
-
-     if (minradius gt 0.5) then begin
-        minflux=squarephot(xcen,ycen,minradius,0.,cube[*,*,i]-skyval)
-        flux=maxflux-minflux
-     endif else flux=maxflux
+;     if (minradius gt 0.5) then begin
+;        minflux=squarephot(xcen,ycen,minradius,0.,cube[*,*,i]-skyval)
+;        flux=maxflux-minflux
+;     endif else flux=maxflux
  ;    if (flux gt 0) then stop
-     maxrawflux=squarephot(xcen,ycen,maxradius,0.,cube[*,*,i])
-     if (minradius gt 0.5) then begin
-        minrawflux=squarephot(xcen,ycen,minradius,0.,cube[*,*,i])
-        rawflux=maxrawflux-minrawflux
-     endif else rawflux=maxrawflux
+;     maxrawflux=squarephot(xcen,ycen,maxradius,0.,cube[*,*,i])
+;     if (minradius gt 0.5) then begin
+;        minrawflux=squarephot(xcen,ycen,minradius,0.,cube[*,*,i])
+;        rawflux=maxrawflux-minrawflux
+;     endif else rawflux=maxrawflux
 
-     maxvar=squarephot(xcen,ycen,maxradius,0.,varcube[*,*,i])
-     if (maxvar lt 0.) then maxvar = sqrt(flux)
+;     maxvar=squarephot(xcen,ycen,maxradius,0.,varcube[*,*,i])
+;     if (maxvar lt 0.) then maxvar=maxvar*(-1.)
  ;    if (minradius gt 0.5) then begin
  ;       minvar=squarephot(xcen,ycen,minradius,0.,varcube[*,*,i])
  ;       varflux=maxvar-minvar
  ;    endif else varflux=maxvar
-     outspec[i]=flux
-     outvar[i]=maxvar
-     outrawspec[i]=rawflux
-  ENDFOR
+;     outspec[i]=flux
+;     outvar[i]=maxvar
+;     outrawspec[i]=rawflux
+;  ENDFOR
  
 
   ind=WHERE(lambda LT 2.01e4 or lambda GT 2.43e4)

@@ -9,7 +9,7 @@ contfile='../lum_model/vucd3_combine_best8_cont.fits'
 fwhm=READFITS(fwhmfile)
 cont=READFITS(contfile)
 
-radii=[0,0.5,1,1.75,3.5,5,8,12]
+radii=[0,0.5,1,1.75,3.5,5,8,11]
 nradii=N_ELEMENTS(radii)
 
 xcen=43.95
@@ -29,7 +29,7 @@ close,1
 
 
 
-FOR i=0,nradii-2 DO int_spectra_pixel,radii[i],radii[i+1],xcen,ycen
+FOR i=0,nradii-2 DO int_spectra_own,radii[i],radii[i+1],xcen,ycen
 
 STOP
 END

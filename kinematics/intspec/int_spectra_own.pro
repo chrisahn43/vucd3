@@ -26,7 +26,7 @@ pro int_spectra_own,minradius,maxradius,xcen,ycen
         minflux=djs_phot(xcen,ycen,minradius,0.,cube[*,*,i]-skyval)
         flux=maxflux-minflux
      endif else flux=maxflux
-     stop
+ 
      maxrawflux=djs_phot(xcen,ycen,maxradius,0.,cube[*,*,i])
      if (minradius gt 0.5) then begin
         minrawflux=djs_phot(xcen,ycen,minradius,0.,cube[*,*,i])

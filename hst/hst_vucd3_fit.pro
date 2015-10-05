@@ -97,32 +97,39 @@ PRO fit_vucd3
 ;
   fits_read, '../data/HST_10137_03_ACS_HRC_F814W_drz.fits', img, h
   fits_read, 'sky_mask.fits',sky
+  fits_read,'../data/HST_10137_03_ACS_HRC_F814W_drz.fits',wht,exten_no=2
+  fits_read, '../data/HST_10137_03_ACS_HRC_F814W_drz.fits',mask,exten_no=3
 ;estimate sky level
 mdrizz=[7.46042280032,7.9962758789,6.9261413824]
 expt=350.0
 mdrizzcount=mdrizz/expt
 avgdrizz=mean(mdrizzcount)
 img=img+avgdrizz
-
-;bl=img[265:365,23:123]
-;br=img[1182:1282,125:225]
-;tl=img[25:125,1070:1170]
-;tr=img[936:1036,1176:1276]
-;tm=img[465:565,1114:1214]
-;bm=img[624:724,75:175]
-;avgsky=[mean(bl),mean(br),mean(tl),mean(tr),mean(tm),mean(bm)]
+totcounts=img*expt
 ;stop
-;skylev = mean(avgsky) ; counts/pixel
-img = img - sky                 ; subtract sky
+;totcounts=sqrt(totcounts)
+imgsize=size(img,/dim)
+for i=0,imgsize[0]-1 do begin
+   for j=0,imgsize[1]-1 do begin
+      if (totcounts[i,j] lt 0.) then totcounts[i,j]=mean(totcounts)
+   endfor
+endfor
+err=sqrt(totcounts)
+
+
+writefits,'vucd3_weightmap.fits',err
+writefits,'vucd3_mask.fits',mask
+
+img = (img - sky);*expt          ; subtract sky
+
 writefits,'vucd3_skysubtract.fits',img
-;expscale=[sxpar(h,'D001SCAL'),sxpar(h,'D002SCAL'),sxpar(h,'D003SCAL')]
-scale = 0.027;mean(expscale) ; arcsec/pixel
-ngauss = 20
+;img = img/expt
+stop
+scale = 0.025 ; arcsec/pixel
+ngauss = 15
 minlevel = 0.0000;1;01 ; counts/pixel
 imgsize=size(img,/dim)
 readcol,'tinytim_fits.dat',normPSF,sigmaPSF,q,format='F,F,F'
-;sigmaPSF = [0.494, 1.44, 4.71, 13.4, 47]      ; In PC1 pixels
-;normPSF = [0.294, 0.559, 0.0813, 0.0656, 0.0001]  ; total(normPSF)=1
 
 ; Here we use FIND_GALAXY directly inside the procedure. Usually you may want
 ; to experiment with different values of the FRACTION keyword, before adopting
@@ -141,23 +148,21 @@ MGE_fit_sectors, radius, angle, counts, eps, $
     NGAUSS=ngauss, SIGMAPSF=sigmaPSF, NORMPSF=normPSF, SOL=sol, SCALE=scale;,/BULGE_DISK
 ;device,/close
 ;set_plot,'x'
-stop
+;stop
 
 peakbright=(sol[0,*])/(2*!PI*((sol[1,*])^2)*sol[2,*])
 extinct=0.034
-surfbrightI=24.86147+5.*alog10(scale)-2.5*alog10(peakbright)-extinct
+surfbrightI=25.28697+5.*alog10(scale)-2.5*alog10(peakbright)-extinct
 ;http://www.stsci.edu/hst/acs/analysis/zeropoints/old_page/localZeropoints
-Intensity=((64800./!PI)^2)*10^(0.4*(4.08-surfbrightI))
+Intensity=((64800./!PI)^2)*10^(0.4*(4.10-surfbrightI))
 print,intensity
 sigmaarc=(sol[1,*])*scale
 q=sol[2,*]
 forprint,intensity,sigmaarc,q,format='F,F,F',textout='vucd3_mge_output.dat'
-
-
 modelweight=peakbright
 modelsig=sol[1,*]
 rad=10^((findgen(36)*0.073)+0.073);[findgen(19)*3+3,findgen(30)*10+60];,250,370]
-minrad=10^(findgen(36)*0.073);[findgen(20)*3,findgen(29)*10+60];,200,250]
+minrad=10^(findgen(36)*0.073)-1;[findgen(20)*3,findgen(29)*10+60];,200,250]
 N=n_elements(rad)
 photflux=fltarr(N)
 modelflux=fltarr(N)
@@ -172,7 +177,7 @@ img1sigup=(newimg+avgdrizz)-sky1sigup
 img1sigdown=(newimg+avgdrizz)-sky1sigdown
 photmag1sigup=fltarr(N)
 photmag1sigdown=fltarr(N)
-
+;stop
 zp=25.28697
 modelimg=fltarr(imgsize[0],imgsize[1])
 x=[reverse(findgen(xc))+1,findgen(imgsize[0]-xc)]
@@ -182,11 +187,13 @@ for i=0,n_elements(x)-1 do begin
       temp=0.
       for k=0,n_elements(modelweight)-1 do begin
          temp+= (modelweight[k]*exp(-(1./(2*modelsig[k]^2))*(x[i]^2+(y[j]^2/q[k]^2))))
+
       endfor
       modelimg[i,j]=temp
     endfor
 endfor
-writefits,'hst_mge_vucd3.fits',modelimg
+stop
+;writefits,'hst_mge_vucd3.fits',modelimg
 
 for i=0,n_elements(rad)-1 do begin
    maxflux_phot=djs_phot(xc,yc,rad[i],0.,img,skyval=skyval)
@@ -196,42 +203,78 @@ for i=0,n_elements(rad)-1 do begin
    maxflux_phot1sigup=djs_phot(xc,yc,rad[i],0.,img1sigup,skyval=skyval)
    minflux_phot1sigup=djs_phot(xc,yc,minrad[i],0.,img1sigup,skyval=skyval)
    maxflux_phot1sigdown=djs_phot(xc,yc,rad[i],0.,img1sigdown,skyval=skyval)
-   minflux_phot1sigdown=djs_phot(xc,yc,minrad[i],0.,img1sigdown,skyval=skyval)   
-   area[i]=((!PI*(rad[i])^2)-(!PI*(minrad[i])^2))*scale
-   photflux[i]=maxflux_phot-minflux_phot
-   modelflux[i]=maxflux_model-minflux_model
-   photflux1sigup=maxflux_phot1sigup-minflux_phot1sigup
-   photflux1sigdown=maxflux_phot1sigdown-minflux_phot1sigdown
+   minflux_phot1sigdown=djs_phot(xc,yc,minrad[i],0.,img1sigdown,skyval=skyval)
+   maxflux_model1=djs_phot(xc,yc,rad[i],0.,modelimg1,skyval=skyval)
+   minflux_model1=djs_phot(xc,yc,minrad[i],0.,modelimg1,skyval=skyval)
+   if (minrad[i] lt 1.1) then begin
+      area[i]=((!PI*(rad[i])^2));*scale
+
+      photflux[i]=maxflux_phot
+      modelflux[i]=maxflux_model
+      modelflux1[i]=maxflux_model1
+      photflux1sigup=maxflux_phot1sigup
+      photflux1sigdown=maxflux_phot1sigdown
+   endif else begin
+      area[i]=((!PI*(rad[i])^2)-(!PI*(minrad[i])^2));*scale
+      photflux[i]=maxflux_phot-minflux_phot
+      modelflux[i]=maxflux_model-minflux_model
+      modelflux1[i]=maxflux_model1-minflux_model1
+      photflux1sigup=maxflux_phot1sigup-minflux_phot1sigup
+      photflux1sigdown=maxflux_phot1sigdown-minflux_phot1sigdown
+   endelse
+   
    photmag[i]=zp+5*alog10(scale)+2.5*alog10(area[i])-2.5*alog10(photflux[i])-0.034
    modelmag[i]=zp+5*alog10(scale)+2.5*alog10(area[i])-2.5*alog10(modelflux[i])-0.034
+   modelmag1[i]=zp+5*alog10(scale)+2.5*alog10(area[i])-2.5*alog10(modelflux1[i])-0.034
    photmag1sigup[i]=zp+5*alog10(scale)+2.5*alog10(area[i])-2.5*alog10(photflux1sigup)-0.034
    photmag1sigdown[i]=zp+5*alog10(scale)+2.5*alog10(area[i])-2.5*alog10(photflux1sigdown)-0.034
    
 endfor
-;stop
-
+stop
+mue1=18.19+2.5*alog10(2*!PI*(5.42*scale)^2)
+mue1=mue1+1.3
+mue2=18.5+2.5*alog10(2*!PI*(32.36*scale)^2)
+mue2=mue2+0.5
+bn1=1.999*4.5-0.327
+bn2=1.999*1.03-0.327
+mu1=mue1+((2.5*bn1)/(alog(10)))*((((rad)/(5.42))^(1./4.5))-1)
+mu2=mue2+((2.5*bn2)/(alog(10)))*((((rad)/(32.36))^(1./1.03))-1)
+int1=(10^(-0.4*(mu1-zp)))
+int2=(10^(-0.4*(mu2-zp)))
+inttot=int1+int2
+mutot=zp-2.5*alog10(inttot)
 set_plot,'ps'
 device,filename='surfbright_hst_fits.ps',/color
-djs_plot,rad*scale,modelmag,psym=2,xtitle='Radius ["]',ytitle='\mu [Mag/sqare arcsecond]',yran=[23,10],xran=[0,13],charsize=1.5,charthick=4,xthick=3,ythick=3
-djs_oplot,rad*scale,photmag,color='blue',thick=3;,psym=2
-djs_oplot,rad*scale,photmag1sigup,color='green',thick=3 ;,psym=4
-djs_oplot,rad*scale,photmag1sigdown,color='red',thick=3 ;,psym=4
-djs_oplot,rad*scale,photmag,psym=4
-djs_oplot,rad*scale,photmag1sigup,psym=4
-djs_oplot,rad*scale,photmag1sigdown,psym=4
-
+djs_plot,rad*scale,photmag,psym=2,xtitle='Radius ["]',ytitle='\mu [Mag/sqare arcsecond]',yran=[23,10],xran=[0,11],charsize=1.5,charthick=4,xthick=3,ythick=3
+djs_oplot,rad*scale,modelmag,color='blue',thick=3 ;,psym=2
+djs_oplot,rad*scale,mutot,color='green',thick=3
+;djs_oplot,rad*scale,photmag1sigup,color='green',thick=3 ;,psym=4
+;djs_oplot,rad*scale,photmag1sigdown,color='red',thick=3 ;,psym=4
+djs_oplot,rad*scale,modelmag,psym=4
+;djs_oplot,rad*scale,photmag1sigup,psym=4
+;djs_oplot,rad*scale,photmag1sigdown,psym=4
+djs_oplot,rad*scale,mutot,psym=4
 ;djs_oplot,rad,modelflux2,psym=2,color='green'
 device,/close
+stop
 device,filename='surfbright_hst_fits_central.ps',/color
-djs_plot,rad*scale,modelmag,psym=2,xtitle='Radius ["]',ytitle='\mu [Mag/square arcsecond]', yran=[18.5,10],xran=[0,1.5] ,charsize=1.5,charthick=4,xthick=3,ythick=3
-djs_oplot,rad*scale,photmag,color='blue',thick=3;,psym=2
-djs_oplot,rad*scale,photmag1sigup,color='green',thick=3 ;,psym=4
-djs_oplot,rad*scale,photmag1sigdown,color='red',thick=3 ;,psym=4
-djs_oplot,rad*scale,photmag,psym=4
-djs_oplot,rad*scale,photmag1sigup,psym=4
-djs_oplot,rad*scale,photmag1sigdown,psym=4
+djs_plot,rad*scale,photmag,psym=2,xtitle='Radius ["]',ytitle='\mu [Mag/square arcsecond]', yran=[22.5,10],xran=[0,2.5] ,charsize=1.5,charthick=4,xthick=3,ythick=3
+djs_oplot,rad*scale,modelmag,color='blue',thick=3;,psym=2
+djs_oplot,rad*scale,mutot,color='green',thick=3
+;djs_oplot,rad*scale,photmag1sigup,color='green',thick=3 ;,psym=4
+;djs_oplot,rad*scale,photmag1sigdown,color='red',thick=3 ;,psym=4
+djs_oplot,rad*scale,modelmag,psym=4
+djs_oplot,rad*scale,mutot,psym=4
+;djs_oplot,rad*scale,photmag1sigup,psym=4
+;djs_oplot,rad*scale,photmag1sigdown,psym=4
 device,/close
 set_plot,'x'
+stop
+djs_plot,rad*scale,photmag,psym=2,xtitle='Radius ["]',ytitle='\mu [Mag/square arcsecond]', yran=[18.5,10],xran=[0,1.5] ,charsize=1.5,charthick=4,xthick=3,ythick=3
+djs_oplot,rad*scale,modelmag,color='blue',thick=3
+djs_oplot,rad*scale,modelmag,psym=4
+djs_oplot,rad*scale,modelmag1,color='green',thick=3
+djs_oplot,rad*scale,modelmag1,psym=4
 
 
 print,modelmag
