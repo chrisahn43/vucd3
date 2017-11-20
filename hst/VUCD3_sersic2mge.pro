@@ -1,10 +1,14 @@
 @sersic2mge.pro
 pro VUCD3_sersic2mge
   scale=0.025
-  re1=5.42d*scale
-  re2=32.36d*scale
-  sersic1={mag:18.19d,re:re1,n:4.5d,pa:19.04d,q:0.71d}
-  sersic2={mag:18.5d,re:re2,n:1.03d,pa:30.5d,q:0.97d}
+  re1=5.37d*scale
+  re2=32.17d*scale
+  sersic1={mag:18.2d,re:re1,n:4.6d,pa:17.62d,q:0.7d}
+  sersic2={mag:18.49d,re:re2,n:1.05d,pa:37.28d,q:0.97d}
+;  re1=2.99d*scale
+;  re2=26.56d*scale
+;  sersic1={mag:18.61d,re:re1,n:3.44d,pa:18.28d,q:0.63d}
+;  sersic2={mag:18.09d,re:re2,n:1.72d,pa:20.7d,q:0.9d}
   sersics=[sersic1,sersic2]
   Msun=4.10d
   A_B=0.034d

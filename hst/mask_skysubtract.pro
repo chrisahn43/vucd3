@@ -49,7 +49,7 @@ pro mask_skysubtract
   x = (findgen(1300)) # (fltarr(1300) +1)
   y = (fltarr(1300)+1) # (findgen(1300))
   z=img
-  p0=[0.02,1.e-6,-4.e-6];,0.,1.e-7,-1.e-7,0.,0.,0.,0.]
+  p0=[0.022,1.e-6,-4.e-6];,0.,1.e-7,-1.e-7,0.,0.,0.,0.]
   aa=mpfit2dfun('myfunct', x, y, z, err, p0, weights=newmask,covar=covar,perror=perror)
   stop
   plane=aa[0]+aa[1]*x+aa[2]*y

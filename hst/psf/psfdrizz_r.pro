@@ -9,7 +9,7 @@ pro psfdrizz_r
   find_galaxy,img,majorAxis,eps,ang,xc,yc
   find_galaxy,psf,majoraxis1,eps1,ang1,xcpsf,ycpsf
   img[*,*]=0.0
-  img[xc-(xcpsf):xc+xcpsf,yc-(ycpsf):yc+ycpsf]=psf
+  img[xc-(xcpsf-1):xc+xcpsf,yc-(ycpsf-1):yc+ycpsf]=psf
   outim='psfonimg_r.fits'
   fits_write,outim,zero,outhead
   fits_open,outim,fcbout,/update

@@ -1,14 +1,14 @@
 
 #  Input menu file: galfit.conf
 
-#  Chi^2/nu = 0.000,  Chi^2 = 0.338,  Ndof = 40389
+#  Chi^2/nu = 0.000,  Chi^2 = 0.339,  Ndof = 40389
 
 ================================================================================
 # IMAGE and GALFIT CONTROL PARAMETERS
 A) vucd3_skysubtract.fits      # Input data image (FITS file)
-B) galfit_model.fits      # Output data image block
+B) ./evstigneeva/galfit_model.fits      # Output data image block
 C) vucd3_weightmap.fits      # Sigma image name (made from data if blank or "none") 
-D) temp_psf.fits          # Input PSF image and (optional) diffusion kernel
+D) ./evstigneeva/temp_psf.fits          # Input PSF image and (optional) diffusion kernel
 E) 1                   # PSF fine sampling factor relative to data 
 F) none#vucd3_mask.fits      # Bad pixel mask (FITS image or ASCII coord list)
 G) constraints         # File with parameter constraints (ASCII file) 
@@ -38,28 +38,28 @@ P) 0                   # Choose: 0=optimize, 1=model, 2=imgblock, 3=subcomps
 
 # Component number: 1
  0) sersic                 #  Component type
- 1) 628.9257 660.4174 1 1  #  Position x, y
- 3) 18.1915     1          #  Integrated magnitude 
- 4) 5.4205      1          #  R_e (effective radius)   [pix]
- 5) 4.5011      1          #  Sersic index n (de Vaucouleurs n=4) 
+ 1) 629.0519 661.2134 1 1  #  Position x, y
+ 3) 18.5807     1          #  Integrated magnitude 
+ 4) 2.7446      1          #  R_e (effective radius)   [pix]
+ 5) 3.2461      1          #  Sersic index n (de Vaucouleurs n=4) 
  6) 0.0000      0          #     ----- 
  7) 0.0000      0          #     ----- 
  8) 0.0000      0          #     ----- 
- 9) 0.7091      1          #  Axis ratio (b/a)  
-10) 19.0414     1          #  Position angle (PA) [deg: Up=0, Left=90]
+ 9) 0.6157      1          #  Axis ratio (b/a)  
+10) 17.9752     1          #  Position angle (PA) [deg: Up=0, Left=90]
  Z) 0                      #  Skip this model in output image?  (yes=1, no=0)
 
 # Component number: 2
  0) sersic                 #  Component type
- 1) 628.9257 660.4174 2 2  #  Position x, y
- 3) 18.4953     1          #  Integrated magnitude 
- 4) 32.3584     1          #  R_e (effective radius)   [pix]
- 5) 1.0330      1          #  Sersic index n (de Vaucouleurs n=4) 
+ 1) 629.0519 661.2134 2 2  #  Position x, y
+ 3) 17.9866     1          #  Integrated magnitude 
+ 4) 24.7111     1          #  R_e (effective radius)   [pix]
+ 5) 1.7444      1          #  Sersic index n (de Vaucouleurs n=4) 
  6) 0.0000      0          #     ----- 
  7) 0.0000      0          #     ----- 
  8) 0.0000      0          #     ----- 
- 9) 0.9701      1          #  Axis ratio (b/a)  
-10) 30.5001     1          #  Position angle (PA) [deg: Up=0, Left=90]
+ 9) 0.8911      1          #  Axis ratio (b/a)  
+10) 20.6453     1          #  Position angle (PA) [deg: Up=0, Left=90]
  Z) 0                      #  Skip this model in output image?  (yes=1, no=0)
 
 ================================================================================

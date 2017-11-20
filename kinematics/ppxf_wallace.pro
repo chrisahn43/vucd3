@@ -2,24 +2,27 @@
 pro ppxf_wallace,lambda,spec,var,fwhm,OUTRV=outrv,OUTDISP=outdisp,OUTSOL=sol,DOERROR=doerror,OUTERROR=outerror,BINNUM=BINNUM,INITVEL=initvel,nodispchi=nodispchi,QUIET=QUIET,BESTFIT=BESTFIT,LOGLAMOUT=LOGLAMOUT,GALAXY=galaxy,RESIDSN=RESIDSN
 
 loadct,12,/silent
-minfit=2.295e4  ;part of the target spectra to extract
-maxfit=2.395e4;95e4
+minfit=2.29e4  ;part of the target spectra to extract
+maxfit=2.37e4;95e4 7
 mintemp=2.28e4 ;part of the template to use
 maxtemp=2.4e4 ;2.4
 velscale=25 ;for the data
 velscaletemp=1. ;for the templates
 tempbin=FIX(velscale/velscaletemp)
-
+var=0.55*var
+telspec=READFITS('telluric_spec.fits',ext=1,/SILENT)
 ;rv0=5 ;alpha boo's radial velocity (no V_LSR correction)
 ;currently no rv0 correction!
 ind=WHERE(lambda GT minfit AND lambda LT maxfit,nind)
 gal_lin=spec[ind]
 ini_error=SQRT(var[ind])
 bad=WHERE(ini_error EQ 0.0,nbad)
+tel_lin=telspec[ind]
 IF (nbad GT 0) THEN ini_error[bad]=MEDIAN(ini_error)
 lamRange = [lambda[ind[0]],lambda[ind[nind-1]]]
 log_rebin, lamRange, gal_lin, galaxy, logLam1, VELSCALE=velScale
 log_rebin, lamRange, ini_error^2, errorsquared,  VELSCALE=velScale
+log_rebin, lamRange, tel_lin, telluric, VELSCALE=velScale
 error=SQRT(errorsquared)
 
 
@@ -129,7 +132,7 @@ badind=badind[1:*]
 linearr=FLTARR(N_ELEMENTS(lamlin))
 ;linearr[badind]=1
 
-stop
+;stop
 ;
 ;templates=templates[*,20]
 start = [initvel, 3.*velscale] ; (km/s), starting guess for [V,sigma]
@@ -144,9 +147,17 @@ IF (nind GT 1) THEN $
 intmask=INTERPOL(mask,loglamrebin,loglam1)
 ;What should the clipping value be?
 goodpix=WHERE(intmask LT 0.2 AND linearr EQ 0)
+
+goodpix=[goodpix[0:130],goodpix[145:n_elements(goodpix)-1]]
+;goodpix=[goodpix[0:130],goodpix[145:405],goodpix[425:455],goodpix[485:n_elements(goodpix)-1]]
 ppxf, convtemplates, galaxy, error, velScale, start, sol,  MOMENTS=2, DEGREE=4, VSYST=dv,WEIGHTS=weights,goodpix=goodpix,QUIET=QUIET,BESTFIT=bestfit,/PLOT,/OVERSAMPLE
-axis,xaxis=2,xrange=[EXP(MIN(loglam1))/1.e4,EXP(MAX(loglam1))/1.e4],chars=1.5,/xsty,xtitle='microns'
+div=(median(telluric)/median(galaxy))+1
+telluric=telluric/div
+;djs_oplot,telluric,color='blue',thick=2
+delvar, telluric
+axis,xaxis=2,xrange=[EXP(MIN(loglam1))/1.e4,EXP(MAX(loglam1))/1.e4],chars=1.5,/xsty,xtitle='Wavelength [!7l!3m]',charthick=4,xthick=3
 axis,xaxis=1,xrange=[EXP(MIN(loglam1))/1.e4,EXP(MAX(loglam1))/1.e4],chars=0.0001,/xsty
+xyouts,[350.35],[4400],['VUCD3'],charthick=3,charsize=1.5
 resid=galaxy-bestfit
 MEANCLIP,resid,meanresid,4.0,subs=goodresid
 ;calculate error to use in MC tests
@@ -154,7 +165,7 @@ newerror=REPLICATE(STDDEV(resid[goodresid]),N_ELEMENTS(galaxy))
 residsn=MEDIAN(galaxy/STDDEV((resid[goodresid])))
 print,'S/N residual,median error',residsn,MEDIAN(galaxy/error)
 error_ratio=residsn/MEDIAN(galaxy/error)
-
+;stop
 
 ;now check what the chisq is if there is no dispersion
 check=[sol[0],velscale/10.0]
@@ -172,6 +183,7 @@ outdisp=sol[1]
 loadct,0,/silent
 
 IF KEYWORD_SET(DOERROR) THEN BEGIN
+;   STop
     nruns=50
     npixels=N_ELEMENTS(galaxy)
     allsol=FLTARR(11,nruns)

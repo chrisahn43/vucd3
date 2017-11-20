@@ -1,6 +1,7 @@
 @int_spectra_annulus.pro
 @int_spectra_own.pro
 @int_spectra_pixel.pro
+@int_spectra_check_rot
 PRO RUN_INT
 
 
@@ -9,7 +10,7 @@ contfile='../lum_model/vucd3_combine_best8_cont.fits'
 fwhm=READFITS(fwhmfile)
 cont=READFITS(contfile)
 
-radii=[0,0.5,1,1.75,3.5,5,8,11]
+radii=[0,1,1.75,3,6,12];,20];[0,1,1.75,3,6,12];[0,0.6,1.05,1.5,2.15,3.1,5.,11.];0.6
 nradii=N_ELEMENTS(radii)
 
 xcen=43.95
@@ -29,7 +30,7 @@ close,1
 
 
 
-FOR i=0,nradii-2 DO int_spectra_own,radii[i],radii[i+1],xcen,ycen
+FOR i=0,nradii-2 DO int_spectra_annulus,radii[i],radii[i+1],xcen,ycen
 
 STOP
 END

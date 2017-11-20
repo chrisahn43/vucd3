@@ -1,38 +1,31 @@
 pro vucd3_jam
   infile='../kinematics/vor_out/intspec_wallace_best8.dat'
   READCOL,infile,filename,rin,rout,rav,sn,chi,vel,velmc,velerr,disp,dispmc,disperr,h3,h3mc,h3err,h4,h4mc,h4err,spclass,spclassmc,spclasserr,lumclass,lumclassmc,lumclasserr,nodispchi,FORMAT='A,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F'
-  readcol,'vucd3_mge_output.dat',Intensity,sigmaarc,q,format='F,F,F'
+
 
   xbin=rav*0.05                ;major axis*0.05 arcsec/pixel
   ybin=fltarr(n_elements(rav)) ;minor axis 
-;Luminosity should be 10^7 L sun, mass 65 * 10^6
-  surf_lum = intensity
-  sigma_lum = sigmaarc
-  qobs_lum = q
-  surf_pot = intensity
-  sigma_pot = sigmaarc
-  qobs_pot = q
-  readcol,'vucd3_mge_outputsersic.dat',Intensity,sigmaarc,q,format='F,F,F'
 
-  surf_lum = intensity
-  sigma_lum = sigmaarc
-  qobs_lum = q
-  surf_pot = intensity
-  sigma_pot = sigmaarc
-  qobs_pot = q
-  distance = 16.5              ; Assume Virgo distance in Mpc (Mei et al. 2007)
-  ml=findgen(50)*0.1+0.1
-  ml=findgen(25)*0.2+0.1
-  mbhs = [0,10^(findgen(11)*0.2+5.0)] ; Black hole mass in solar masses
-  mbhs = [0,10^(findgen(6)*0.2+6.0)]
-  betas=[0.]                    ;findgen(10)*0.2-1.
-  inclinations=[90.];[50.,60.,70.,80.,90.]
+  distance=16.5
+  ml=findgen(30)*0.1+0.1
+  mbhs = [0.,3.e6,6.e6,1.e7];10^(findgen(6)*0.2+6.)] ; Black hole mass in solar masses
+  betas=[0.]
+  inclinations=[90.]
   nmbhs=n_elements(mbhs)
   nmls=n_elements(ml)
   nbetas=n_elements(betas)
   ninclinations=n_elements(inclinations)
-  out=REPLICATE({inmbh:0.0,inbeta:0.0,ininc:0.0,chi2:0.0,ml:0.0,outmbh:0.0,rms:fltarr(n_elements(disp))},nmbhs,nbetas,ninclinations,nmls)
+  readcol,'./evstigneeva/vucd3_mge_outputsersic.dat',Intensity,sigmaarc,q,format='F,F,F'
+  readcol,'./evstigneeva/vucd3_mge_outputsersic_mass.dat',mass,format='D'
+  surf_lum = intensity
+  sigma_lum = sigmaarc
+  qobs_lum = q
+  surf_pot = mass
+  sigma_pot = sigmaarc
+  qobs_pot = q
 
+  out=REPLICATE({inmbh:0.0,inbeta:0.0,ininc:0.0,chi2:0.0,ml:0.0,outmbh:0.0,rms:fltarr(n_elements(disp))},nmbhs,nbetas,ninclinations,nmls)
+  readcol,'~/research/code/gemini15/vucd3/kinematics/newkinematic_psf_moffat.dat',normpsf,sigmapsf,format='F,F'
 stop
   for i=0,nmbhs-1 do begin
      for j=0,nbetas-1 do begin
@@ -42,7 +35,7 @@ stop
               mbh=mbhs[i]/fitml
               beta=betas[j]
               inc=inclinations[k]
-              jam_axisymmetric_rms,surf_lum, sigma_lum, qobs_lum, surf_pot, sigma_pot, qobs_pot, inc, mbh, distance, xbin, ybin, rmsModel, BETA=beta,RMS=disp,ERMS=disperr,SIGMAPSF=[0.118,0.562],NORMPSF=[0.63,0.37],PIXSIZE=0.05,ml=fitml,chi2=chi2
+              jam_axisymmetric_rms,surf_lum, sigma_lum, qobs_lum, surf_pot, sigma_pot, qobs_pot, inc, mbh, distance, xbin, ybin, rmsModel, BETA=beta,RMS=disp,ERMS=disperr,SIGMAPSF=sigmapsf,NORMPSF=normpsf,PIXSIZE=0.05,ml=fitml,chi2=chi2,step=0.02
               out[i,j,k,l].chi2=chi2*FLOAT(n_elements(xbin))
               out[i,j,k,l].outmbh=mbh*fitml
               out[i,j,k,l].ml=fitml
@@ -58,6 +51,26 @@ stop
   c=where(out[a].chi2 eq min(out[a].chi2))
   rms_nobh=out[a[c]].rms
   b=where(out.chi2 eq min(out.chi2))
+  likelihood=dblarr(nmbhs)
+  temp=0D
+  for i=0,nmbhs-1 do begin &$
+     mbhind=where(out.outmbh eq mbhs[i]) &$
+     for j=0,nmls-1 do begin &$
+     mlind=where(out[mbhind].ml eq ml[j]) &$
+     for k=0,ninclinations-1 do begin &$
+     incind=where(out[mbhind[mlind]].ininc eq inclinations[k]) &$
+     temp+=exp(-0.5*(out[mbhind[mlind[incind]]].chi2)^2) &$
+     endfor &$
+     endfor &$
+     likelihood[i]=temp &$
+     endfor
+     
+     likefixnorm_mass=likelihood/max(likelihood)
+     mbhsfixnorm_mass=interpol(mbhs,likefixnorm_mass,[.00135,0.02275,0.16,0.5,0.84,0.97725,0.99865])
+     sigma=[-3,-2,-1,0,1,2,3]
+  
+     
+     
 ;  set_plot,'ps'
 ;  device,filename='oned_bestfit_rms.ps',/color
   djs_plot,xbin,disp,psym=4,ytitle='Dispersion (km/s)',xtitle='Radius (arcseconds)',xran=[0.,0.52],yran=[25,55],/xsty,charsize=1.5,charthick=4,xthick=3,ythick=3,symsize=2

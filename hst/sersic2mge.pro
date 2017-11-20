@@ -106,9 +106,9 @@ function fitmge2sersic,n_sersic, Re_sersic, NSTEP=NSTEP, fitbound=fitbound,NGAUS
 	profile = exp( -bn*((R/Re_sersic)^(1.0/n_sersic)-1) )  ;; Makes I0 into Ie (surface brightness at Re)
   
 	profile = (1+randomn(seed,nstep)*0.001)*profile
-	
+ ;       stop
   mge_fit_1d, R, profile, NGAUSS=NGAUSS, SOL=sol,outer_slope=n_sersic
-  
+
   ;; Change first dimension output from 1D flux integral to (total) amplitudes
   lum = sol[0,*] / sqrt(2*!pi*sol[1,*]^2)
   sol[0,*]=lum
@@ -120,7 +120,7 @@ function sersic2mge,sersic,Msun,A_b=A_b,fitrange=fitrange,frac=frac
 	 ;if not keyword_set(fitrange) then fitrange=[0.01,10]
 
 	  mge=fitmge2sersic(sersic.n,sersic.re,fitbound=fitrange,frac=frac)
-
+          stop
 		zero_pt=21.0  ; arbitrary zero_point
     
 		totflux=total( mge[0,*] * (2*!pi) * mge[1,*]^2 * sersic.q)

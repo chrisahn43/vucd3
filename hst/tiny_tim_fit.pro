@@ -101,20 +101,20 @@ PRO fit_tinytim;ngc4342
 ;
 ; This example illustrates a simple MGE fit to one single HST/WFPC2/F814W image.
 ;
-  fits_read, '../data/result00_psf.fits', img, h
-  img=img*(1./total(img))
+  fits_read, './evstigneeva/temp_psf.fits', img, h
+;  img=img*(1./total(img))
 ;skylev = 0.55 ; counts/pixel
 ;img = img - skylev ; subtract sky
-scale = 0.0231 ; arcsec/pixel
+scale = 0.025;31 ; arcsec/pixel
 
-ngauss = 5
-minlevel = 5.e-6 ; counts/pixel
+ngauss = 10
+minlevel = 1.e-40 ; counts/pixel
 
 ; Here we use FIND_GALAXY directly inside the procedure. Usually you may want
 ; to experiment with different values of the FRACTION keyword, before adopting
 ; given values of Eps, Ang, Xc, Yc.
 
-find_galaxy, img, majorAxis, eps, ang, xc, yc, FRACTION=.9, /PLOT
+find_galaxy, img, majorAxis, eps, ang, xc, yc, FRACTION=.3, /PLOT
 
 ; Perform galaxy photometry
 
@@ -126,9 +126,9 @@ stop
 modelnorm=1./total(sol[0,*]) ;make output sum 1
 modelpeak=modelnorm*(sol[0,*]) ;make output sum 1
 modelsig=sol[1,*] ;sigma
-modelweight=modelpeak/(2*!PI*(modelsig)^2) ;in flux need A/2*pi*sigma^2
+;modelweight=modelpeak/(2*!PI*(modelsig)^2) ;in flux need A/2*pi*sigma^2
 forprint,modelpeak,modelsig,sol[2,*],format='F,F,F',textout='tinytim_fits.dat' ;output for mge fits on hst image
-
+stop
 photflux=fltarr(40)
 modelflux=fltarr(40)
 aperflux=fltarr(40)

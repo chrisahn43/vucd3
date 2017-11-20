@@ -1,7 +1,5 @@
-  0.0  0.5  0.294  4.119 vucd3_combine_best8_int_fc0-0.fits
-  0.5  1.0  0.849  4.170 vucd3_combine_best8_int_fc0-1.fits
+  0.0  1.0  0.652  4.152 vucd3_combine_best8_int_fc0-1.fits
   1.0  1.8  1.380  4.095 vucd3_combine_best8_int_fc1-1.fits
-  1.8  3.5  2.670  4.083 vucd3_combine_best8_int_fc1-3.fits
-  3.5  5.0  4.273  4.074 vucd3_combine_best8_int_fc3-5.fits
-  5.0  8.0  6.428  4.064 vucd3_combine_best8_int_fc5-8.fits
-  8.0 11.0  9.424  4.075 vucd3_combine_best8_int_fc8-11.fits
+  1.8  3.0  2.360  4.089 vucd3_combine_best8_int_fc1-3.fits
+  3.0  6.0  4.338  4.073 vucd3_combine_best8_int_fc3-6.fits
+  6.0 12.0  8.744  4.072 vucd3_combine_best8_int_fc6-12.fits

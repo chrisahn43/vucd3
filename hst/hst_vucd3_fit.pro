@@ -123,314 +123,155 @@ writefits,'vucd3_mask.fits',mask
 img = (img - sky);*expt          ; subtract sky
 
 writefits,'vucd3_skysubtract.fits',img
-;img = img/expt
+temp=img[431:831,462:862]
+ngauss=20
+minlevel=0.
+
+find_galaxy,temp,majoraxis,eps,ang,xc,yc,FRACTION=.8
+
+sectors_photometry,temp,eps,ang,xc,yc,radius,angle,counts,minlevel=minlevel
+
+readcol,'tinytim_fits.dat',normpsf,sigmapsf,format='F,F'
+MGE_fit_sectors,radius,angle,counts,eps,sol=sol,ngauss=ngauss,scale=scale,normpsf=normpsf,sigmapsf=sigmapsf
 ;stop
+
+
 scale = 0.025 ; arcsec/pixel
-ngauss = 15
-minlevel = 0.0000;1;01 ; counts/pixel
-imgsize=size(img,/dim)
-readcol,'tinytim_fits.dat',normPSF,sigmaPSF,q,format='F,F,F'
-
-; Here we use FIND_GALAXY directly inside the procedure. Usually you may want
-; to experiment with different values of the FRACTION keyword, before adopting
-; given values of Eps, Ang, Xc, Yc.
-
-find_galaxy, img, majorAxis, eps, ang, xc, yc,FRACTION=0.13
-
-; Perform galaxy photometry
-
-sectors_photometry, img, eps, ang, xc, yc, radius, angle, counts, MINLEVEL=minlevel;,N_sectors=19,SECTOR_WIDTH=5
-
-; Do the actual MGE fit 
-;set_plot,'ps'
-;device,filename='vucd3_photfits.ps'
-MGE_fit_sectors, radius, angle, counts, eps, $
-    NGAUSS=ngauss, SIGMAPSF=sigmaPSF, NORMPSF=normPSF, SOL=sol, SCALE=scale;,/BULGE_DISK
-;device,/close
-;set_plot,'x'
-;stop
-
-peakbright=(sol[0,*])/(2*!PI*((sol[1,*])^2)*sol[2,*])
 extinct=0.034
-surfbrightI=25.28697+5.*alog10(scale)-2.5*alog10(peakbright)-extinct
-;http://www.stsci.edu/hst/acs/analysis/zeropoints/old_page/localZeropoints
-Intensity=((64800./!PI)^2)*10^(0.4*(4.10-surfbrightI))
-print,intensity
-sigmaarc=(sol[1,*])*scale
-q=sol[2,*]
-forprint,intensity,sigmaarc,q,format='F,F,F',textout='vucd3_mge_output.dat'
-modelweight=peakbright
-modelsig=sol[1,*]
-rad=10^((findgen(36)*0.073)+0.073);[findgen(19)*3+3,findgen(30)*10+60];,250,370]
-minrad=10^(findgen(36)*0.073)-1;[findgen(20)*3,findgen(29)*10+60];,200,250]
-N=n_elements(rad)
-photflux=fltarr(N)
-modelflux=fltarr(N)
-area=fltarr(N)
-photmag=fltarr(N)
-modelmag=fltarr(N)
-;Make surface brightness with errors on sky subtraction
-fits_read, '../data/HST_10137_03_ACS_HRC_F814W_drz.fits', newimg, h
-fits_read, 'sky1sigup_mask.fits',sky1sigup
-fits_read, 'sky1sigdown_mask.fits',sky1sigdown
-img1sigup=(newimg+avgdrizz)-sky1sigup
-img1sigdown=(newimg+avgdrizz)-sky1sigdown
-photmag1sigup=fltarr(N)
-photmag1sigdown=fltarr(N)
-;stop
 zp=25.28697
-modelimg=fltarr(imgsize[0],imgsize[1])
-x=[reverse(findgen(xc))+1,findgen(imgsize[0]-xc)]
-y=[reverse(findgen(yc))+1,findgen(imgsize[1]-yc)]
-for i=0,n_elements(x)-1 do begin
-   for j=0,n_elements(y)-1 do begin
-      temp=0.
-      for k=0,n_elements(modelweight)-1 do begin
-         temp+= (modelweight[k]*exp(-(1./(2*modelsig[k]^2))*(x[i]^2+(y[j]^2/q[k]^2))))
-
-      endfor
-      modelimg[i,j]=temp
-    endfor
-endfor
-stop
-;writefits,'hst_mge_vucd3.fits',modelimg
-
-for i=0,n_elements(rad)-1 do begin
-   maxflux_phot=djs_phot(xc,yc,rad[i],0.,img,skyval=skyval)
-   minflux_phot=djs_phot(xc,yc,minrad[i],0.,img,skyval=skyval)
-   maxflux_model=djs_phot(xc,yc,rad[i],0.,modelimg,skyval=skyval)
-   minflux_model=djs_phot(xc,yc,minrad[i],0.,modelimg,skyval=skyval)
-   maxflux_phot1sigup=djs_phot(xc,yc,rad[i],0.,img1sigup,skyval=skyval)
-   minflux_phot1sigup=djs_phot(xc,yc,minrad[i],0.,img1sigup,skyval=skyval)
-   maxflux_phot1sigdown=djs_phot(xc,yc,rad[i],0.,img1sigdown,skyval=skyval)
-   minflux_phot1sigdown=djs_phot(xc,yc,minrad[i],0.,img1sigdown,skyval=skyval)
-   if (minrad[i] lt 1.1) then begin
-      area[i]=((!PI*(rad[i])^2));*scale
-
-      photflux[i]=maxflux_phot
-      modelflux[i]=maxflux_model
-      photflux1sigup=maxflux_phot1sigup
-      photflux1sigdown=maxflux_phot1sigdown
-   endif else begin
-      area[i]=((!PI*(rad[i])^2)-(!PI*(minrad[i])^2));*scale
-      photflux[i]=maxflux_phot-minflux_phot
-      modelflux[i]=maxflux_model-minflux_model
-      photflux1sigup=maxflux_phot1sigup-minflux_phot1sigup
-      photflux1sigdown=maxflux_phot1sigdown-minflux_phot1sigdown
-   endelse
-   
-   photmag[i]=zp+5*alog10(scale)+2.5*alog10(area[i])-2.5*alog10(photflux[i])-0.034
-   modelmag[i]=zp+5*alog10(scale)+2.5*alog10(area[i])-2.5*alog10(modelflux[i])-0.034
-   photmag1sigup[i]=zp+5*alog10(scale)+2.5*alog10(area[i])-2.5*alog10(photflux1sigup)-0.034
-   photmag1sigdown[i]=zp+5*alog10(scale)+2.5*alog10(area[i])-2.5*alog10(photflux1sigdown)-0.034
-   
-endfor
-stop
-;mue1=18.19+2.5*alog10(2*!PI*(5.42*scale)^2)
-;mue1=mue1+1.3
-;mue2=18.5+2.5*alog10(2*!PI*(32.36*scale)^2)
-;mue2=mue2+0.5
-;bn1=1.999*4.5-0.327
-;bn2=1.999*1.03-0.327
-;mu1=mue1+((2.5*bn1)/(alog(10)))*((((rad)/(5.42))^(1./4.5))-1)
-;mu2=mue2+((2.5*bn2)/(alog(10)))*((((rad)/(32.36))^(1./1.03))-1)
-;int1=(10^(-0.4*(mu1-zp)))
-;int2=(10^(-0.4*(mu2-zp)))
-;inttot=int1+int2
-;mutot=zp-2.5*alog10(inttot)
-set_plot,'ps'
-;device,filename='surfbright_hstvorigmge.ps',/color
+msun=4.53
+peak=sol[0,*]/(2*!PI*sol[1,*]^2*sol[2,*])
+mu=zp+5*alog10(scale)-2.5*alog10(peak)-extinct
+const=(64800/!PI)^2
+intensity=const*(10^(0.4*(msun-mu)))
+sigmaarc=sol[1,*]*scale
+forprint,intensity,sigmaarc,sol[2,*],format='F,F,F',textout='vucd3_mge_output.dat'
+;stop
+;set_plot,'ps'
 !P.Multi=[0,1,2]
-;djs_plot,rad*scale,photmag,psym=2,xtitle='Radius ["]',ytitle='\mu [Mag/sqare arcsecond]',yran=[23,13],xran=[0,11],charsize=1.5,charthick=4,xthick=3,ythick=3,ymargin=[0,3],xcharsize=0.000001,position=[0.1,0.25,0.95,0.95]
-;djs_oplot,rad*scale,modelmag,color='blue',thick=3 ;,psym=2
-;djs_oplot,rad*scale,modelmag,psym=4
-;djs_plot,rad*scale,photmag-modelmag,psym=2,ymargin=[4,0],position=[0.1,0.1,0.95,0.25],xtitle='Radius ["]',ytitle='Residual',charthick=4,xthick=3,ythick=2,charsize=1.5,ycharsize=0.5
-;device,/close
 
-;device,filename='surfbright_hstvorigmge_center.ps',/color
-;djs_plot,rad*scale,photmag,psym=2,xtitle='Radius ["]',ytitle='\mu [Mag/sqare arcsecond]',yran=[21,13],xran=[0,1.],charsize=1.5,charthick=4,xthick=3,ythick=3,ymargin=[0,3],xcharsize=0.000001,position=[0.1,0.25,0.95,0.95],/ysty
-;djs_oplot,rad*scale,modelmag,color='blue',thick=3 ;,psym=2
-;djs_oplot,rad*scale,modelmag,psym=4
-;djs_plot,rad*scale,photmag-modelmag,psym=2,ymargin=[4,0],position=[0.1,0.1,0.95,0.25],xtitle='Radius ["]',ytitle='Residual',charthick=4,xthick=3,ythick=2,charsize=1.5,ycharsize=0.5,xran=[0,1.],yran=[-0.3,0.75],/ysty
-;device,/close
-;stop
+fits_read,'./evstigneeva/galfit_model_fixed.fits',img,exten_no=1
+fits_read,'./evstigneeva/galfit_model_fixed.fits',modelimg,exten_no=2
+find_galaxy,img,m,e,a,xc,yc
+xc=96 & yc=98
+find_galaxy,modelimg,majoraxis,eps,ang,xc_mod,yc_mod
+xc_mod=96 & yc_mod=98
 
-;device,filename='surfbright_hstvgalmge_center.ps',/color
-;djs_plot,rad*scale,photmag,psym=2,xtitle='Radius ["]',ytitle='\mu [Mag/sqare arcsecond]',yran=[23,10],xran=[0,1.],charsize=1.5,charthick=4,xthick=3,ythick=3,ymargin=[0,3],xcharsize=0.000001,position=[0.1,0.25,0.95,0.95]
-;djs_oplot,rad*scale,mutot,color='green',thick=3 ;,psym=2
-;djs_oplot,rad*scale,mutot,psym=4
-;djs_plot,rad*scale,photmag-mutot,psym=2,ymargin=[4,0],position=[0.1,0.1,0.95,0.25],xtitle='Radius ["]',ytitle='Residual',charthick=4,xthick=3,ythick=2,charsize=1.5,ycharsize=0.5,xran=[0,1.],yran=[-0.75,0.75],/ysty
-;device,/close
-;stop
+fits_read,'./make_decon/serfixmodeli.fits',serfixi
+find_galaxy,serfixi,m,e,a,xc_ser,yc_ser
+radius=findgen(140)*0.4;(10^(findgen(85)*0.05))*scale
+minrad=[0,findgen(139)*0.4];[0,(10^(findgen(84)*0.1))*scale]
 
-readcol,'vucd3_mge_outputsersic.dat',sersiclum,sersicsig,sersicq,sersicpa,format='D,D,D,D'
-Msun=4.10d
-const=(64800./!PI)^2
-sersicsb=Msun-2.5*alog10(sersiclum/const)
-sersicpeak=10^(-0.4*(sersicsb-zp-5*alog10(scale)+extinct))
-radius=(10^(findgen(80)*0.025))*scale
-minrad=[0,(10^(findgen(79)*0.025))*scale]
-sersicflux=fltarr(n_elements(radius))
-for i=0,n_elements(radius)-1 do begin
-   tmp=0.
-   for j=0,n_elements(sersicpeak)-1 do begin
-      tmp+= (sersicpeak[j]*exp(-(1./(2*sersicsig[j]^2))*(radius[i])^2))
-      sersicflux[i]=tmp
-   endfor
-endfor
-readcol,'vucd3_mge_output.dat',lum,sig,q,format='F,F,F'
-sb=Msun-2.5*alog10(lum/const)
-peak=10^(-0.4*(sb-zp-5*alog10(scale)+extinct))
-flux=fltarr(n_elements(radius))
-for i=0,n_elements(radius)-1 do begin
-   temp=0.
-   for j=0,n_elements(peak)-1 do begin
-      temp+= (peak[j]*exp(-(1./(2*sig[j]^2))*(radius[i])^2))
-      flux[i]=temp
-   endfor
-endfor
-mag=zp+5*alog10(scale)-2.5*alog10(flux)-extinct
-
-radius=radius/scale
-minrad=minrad/scale
+;radius=radius/scale
+;minrad=minrad/scale
 photmag2=fltarr(n_elements(radius))
 modelmag2=fltarr(n_elements(radius))
+sersicmag=fltarr(n_elements(radius))
 area2=fltarr(n_elements(radius))
 for i=0,n_elements(radius)-1 do begin
-   maxflux_phot=djs_phot(xc,yc,radius[i],0.,img,skyval=skyval)
-   minflux_phot=djs_phot(xc,yc,minrad[i],0.,img,skyval=skyval)
-   maxflux_model=djs_phot(xc,yc,radius[i],0.,modelimg,skyval=skyval)
-   minflux_model=djs_phot(xc,yc,minrad[i],0.,modelimg,skyval=skyval)
-
+   aper,img,xc,yc,maxflux_phot,fluxerr,0.,skyerr,1,radius[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
+   aper,img,xc,yc,minflux_phot,fluxerr,0.,skyerr,1,minrad[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
+   aper,modelimg,xc_mod,yc_mod,maxflux_model,fluxerr,0.,skyerr,1,radius[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
+   aper,modelimg,xc_mod,yc_mod,minflux_model,fluxerr,0.,skyerr,1,minrad[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
+   aper,serfixi,xc_ser,yc_ser,maxflux_ser,fluxerr,0.,skyerr,1,radius[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
+   aper,serfixi,xc_ser,yc_ser,minflux_ser,fluxerr,0.,skyerr,1,minrad[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
    if (minrad[i] lt 0.025) then begin
       area2[i]=((!PI*(radius[i])^2)) ;*scale
       
       photflux=maxflux_phot
       modelflux=maxflux_model
+      sersicflux=maxflux_ser
     endif else begin
       area2[i]=((!PI*(radius[i])^2)-(!PI*(minrad[i])^2)) ;*scale
       photflux=maxflux_phot-minflux_phot
       modelflux=maxflux_model-minflux_model
+      sersicflux=maxflux_ser-minflux_ser
    endelse
    
     photmag2[i]=zp+5*alog10(scale)+2.5*alog10(area2[i])-2.5*alog10(photflux)-0.034
     modelmag2[i]=zp+5*alog10(scale)+2.5*alog10(area2[i])-2.5*alog10(modelflux)-0.034
-endfor
-sersicmag=zp+5*alog10(scale)-2.5*alog10(sersicflux)-extinct
+    sersicmag[i]=zp+5*alog10(scale)+2.5*alog10(area2[i])-2.5*alog10(sersicflux)-extinct
+ endfor
+
+
 ;set_plot,'x'
-device,filename='surfbright_hstvgalmge_center.ps',/color
-djs_plot,radius*scale,photmag2,psym=2,xtitle='Radius ["]',ytitle='\mu [Mag/sqare arcsecond]',yran=[21,13],xran=[0,1.],charsize=1.5,charthick=4,xthick=3,ythick=3,ymargin=[0,3],xcharsize=0.000001,position=[0.1,0.25,0.95,0.95],/ysty
-djs_oplot,radius*scale,sersicmag,color='green',thick=3 ;,psym=2
-djs_oplot,radius*scale,sersicmag,psym=4
-djs_plot,radius*scale,photmag2-sersicmag,psym=2,ymargin=[4,0],position=[0.1,0.1,0.95,0.25],xtitle='Radius ["]',ytitle='Residual',charthick=4,xthick=3,ythick=2,charsize=1.5,ycharsize=0.5,xran=[0,1.],yran=[-0.07,0.8],/ysty
-device,/close
-device,filename='surfbright_hstvorigmge_center.ps',/color
-djs_plot,radius*scale,photmag2,psym=2,xtitle='Radius ["]',ytitle='\mu [Mag/sqare arcsecond]',yran=[21,13],xran=[0,1.],charsize=1.5,charthick=4,xthick=3,ythick=3,ymargin=[0,3],xcharsize=0.000001,position=[0.1,0.25,0.95,0.95],/ysty
-djs_oplot,radius*scale,modelmag2,color='blue',thick=3 ;,psym=2
-djs_oplot,radius*scale,modelmag2,psym=4
-djs_plot,radius*scale,photmag2-modelmag2,psym=2,ymargin=[4,0],position=[0.1,0.1,0.95,0.25],xtitle='Radius ["]',ytitle='Residual',charthick=4,xthick=3,ythick=2,charsize=1.5,ycharsize=0.5,xran=[0,1.],yran=[-0.4,0.8],/ysty
-device,/close
 
-device,filename='residual_comps.ps',/color
-!P.Multi=[0,1,1]
-djs_plot,radius*scale,photmag2-sersicmag,psym=2,xran=[0,1],yran=[-0.3,0.8],/ysty,ytitle='Residuals',xtitle='Radius ["]',charsize=1.5,charthick=4,xthick=3,ythick=3
-djs_oplot,radius*scale,photmag2-modelmag2,psym=2,color='blue'
-device,/close
-stop
-readcol,'vucd3_mge_outputsersic.dat',sersiclum,sersicsig,sersicq,sersicpa,format='D,D,D,D'
-Msun=4.10d
-const=(64800./!PI)^2
+;stop
+readcol,'./evstigneeva/vucd3_mge_outputsersic.dat',sersiclum,sersicsig,sersicq,sersicpa,format='D,D,D,D'
+Msun=4.53d
+fits_read,'/Users/chrisahn/research/code/gemini15/vucd3/hst/evstigneeva/deconvolved_f814.fits',oldimg,head
+hrotate,oldimg,head,img,newhead,1
+find_galaxy,img,majoraxis,eps,ang,xci,yci
+
+
 a=where(sersicq lt 0.8)
-sersicsb1=Msun-2.5*alog10(sersiclum[a]/const)
-sersicpeak1=10^(-0.4*(sersicsb1-zp-5*alog10(scale)+extinct))
+inintensity=sersiclum[a]
+insigma=sersicsig[a]
+inq=sersicq[a]
+inpa=sersicpa[a]
+mge2image,img,xci,yci,inintensity,insigma,inq,inpa,inmodel,zeropoint=zp,scale=scale,msun=msun
+
 b=where(sersicq gt 0.8)
-sersicsb2=Msun-2.5*alog10(sersiclum[b]/const)
-sersicpeak2=10^(-0.4*(sersicsb2-zp-5*alog10(scale)+extinct))
+outintensity=sersiclum[b]
+outsigma=sersicsig[b]
+outq=sersicq[b]
+outpa=sersicpa[b]
+mge2image,img,xci,yci,outintensity,outsigma,outq,outpa,outmodel,zeropoint=zp,scale=scale,msun=msun
 
-radius=(10^(findgen(80)*0.025))*scale
-minrad=[0,(10^(findgen(79)*0.025))*scale]
-sersicflux1=fltarr(n_elements(radius))
-sersicflux2=fltarr(n_elements(radius))
-
+readcol,'vucd3_mge_output.dat',mgelum,mgesig,mgeq,format='F,F,F'
+pa=fltarr(n_elements(mgeq))
+pa[*]=0.
+mge2image,img,xci,yci,mgelum,mgesig,mgeq,pa,mgemodel,zeropoint=zp,scale=scale,msun=msun
+writefits,'./make_decon/mgedirectfit.fits',mgemodel
+mgemag=fltarr(n_elements(radius))
+sersicmag1=fltarr(n_elements(radius))
+sersicmag2=fltarr(n_elements(radius))
 for i=0,n_elements(radius)-1 do begin
-   tmp=0.
-   temp=0.
-   for j=0,n_elements(sersicpeak1)-1 do begin
-      tmp+= (sersicpeak1[j]*exp(-(1./(2*sersicsig[a[j]]^2))*(radius[i])^2))
-      sersicflux1[i]=tmp
-   endfor
-   for j=0,n_elements(sersicpeak2)-1 do begin
-      temp+=(sersicpeak2[j]*exp(-(1./(2*sersicsig[b[j]]^2))*(radius[i])^2))
-      sersicflux2[i]=temp
-   endfor 
-endfor
-sersicmag1=zp+5*alog10(scale)-2.5*alog10(sersicflux1)-extinct
-sersicmag2=zp+5*alog10(scale)-2.5*alog10(sersicflux2)-extinct
+   aper,inmodel,xci,yci,maxinflux,fluxerr,0.,skyerr,1,radius[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
+   aper,inmodel,xci,yci,mininflux,fluxerr,0.,skyerr,1,minrad[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
+   aper,outmodel,xci,yci,maxoutflux,fluxerr,0.,skyerr,1,radius[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
+   aper,outmodel,xci,yci,minoutflux,fluxerr,0.,skyerr,1,minrad[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
+   aper,mgemodel,xci,yci,maxmgeflux,fluxerr,0.,skyerr,1,radius[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
+   aper,mgemodel,xci,yci,minmgeflux,fluxerr,0.,skyerr,1,minrad[i],-1,[1,1],/silent,setskyval=0.,/flux,/exact
+   if (minrad[i] lt 0.025) then begin
+      area2[i]=((!PI*(radius[i])^2)) ;*scale
+      sersicflux1=maxinflux
+      sersicflux2=maxoutflux
+      mgeflux=maxmgeflux
+    endif else begin
+      area2[i]=((!PI*(radius[i])^2)-(!PI*(minrad[i])^2)) ;*scale
+      sersicflux1=maxinflux-mininflux
+      sersicflux2=maxoutflux-minoutflux
+      mgeflux=maxmgeflux-minmgeflux
+   endelse
+    sersicmag1[i]=zp+5*alog10(scale)+2.5*alog10(area2[i])-2.5*alog10(sersicflux1)
+    sersicmag2[i]=zp+5*alog10(scale)+2.5*alog10(area2[i])-2.5*alog10(sersicflux2)
+    mgemag[i]=zp+5*alog10(scale)+2.5*alog10(area2[i])-2.5*alog10(mgeflux)
+ endfor
+
+set_plot,'ps'
 !P.Multi=[0,1,2]
-device,filename='surfbright_hstindivsersic_center.ps',/color
-djs_plot,radius,photmag2,psym=2,xtitle='Radius ["]',ytitle='\mu [Mag/sqare arcsecond]',yran=[21,13],xran=[0,1.],charsize=1.5,charthick=4,xthick=3,ythick=3,ymargin=[0,3],xcharsize=0.000001,position=[0.1,0.25,0.95,0.95],/ysty
+radius=radius*scale
+device,filename='surfbright_hstindivsersic_center.ps',/color,/HELVETICA,bits=8,/cmyk,/encaps,/inches,ysize=7
+;myplot,filename='surfbright_hstindivsersic_center.ps'
+djs_plot,radius,photmag2,psym=2,xtitle='Radius ["]',ytitle='\mu_{F814W} [Mag/asec^2]',yran=[20.999,13],xran=[0,1.],charsize=1.5,charthick=4,xthick=3,ythick=3,ymargin=[0,3],xcharsize=0.000001,position=[0.1,0.25,0.95,0.95],/ysty,ycharsize=0.95
 djs_oplot,radius,sersicmag1,color='green',thick=3,linestyle=2 ;,psym=2
 djs_oplot,radius,sersicmag2,color='blue',thick=3,linestyle=2
 djs_oplot,radius,sersicmag,color='red',thick=3
-djs_plot,radius,photmag2-sersicmag,psym=2,ymargin=[4,0],position=[0.1,0.1,0.95,0.25],xtitle='Radius ["]',ytitle='Residual',charthick=4,xthick=3,ythick=2,charsize=1.5,ycharsize=0.5,xran=[0,1.],yran=[-0.07,0.8],/ysty
+djs_oplot,radius,modelmag2,color='cyan',thick=4
+;djs_oplot,radius,mgemag,color='cyan',thick=4
+items=['n=3.51','n=1.28']
+lines=[2,2]
+color=['green','blue']
+al_legend,items,linestyle=lines,colors=color,/window,background_color='white',charthick=4,thick=3,/top,/right
+xyouts,[.02],[20.5],['VUCD3'],charthick=3,charsize=1.5,/data
+djs_plot,radius,photmag2-modelmag2,psym=2,ymargin=[4,0],position=[0.1,0.1,0.95,0.25],xtitle='Radius ["]',ytitle='\Delta \mu',charthick=4,xthick=3,ythick=2,charsize=1.5,ycharsize=0.65,xran=[0,1.],yran=[-0.055,0.055],/ysty
+djs_oplot,radius,fltarr(n_elements(radius)),linestyle=2,thick=3
 device,/close
 !P.Multi=[0,1,1]
 set_plot,'x'
 stop
 
-;set_plot,'ps'
-;device,filename='fluxhst_fits.ps',/color
-;djs_plot,rad*scale,modelflux,psym=2,xtitle='Radius ["]',ytitle='Flux',charsize=1.5,charthick=4,xthick=3,ythick=3
-;djs_oplot,rad*scale,photflux,psym=2,color='blue'
-;djs_oplot,rad,modelflux2,psym=2,color='green'
-;device,/close
-;set_plot,'x'
-;stop
-;djs_plot,rad,modelflux,psym=2
-;djs_oplot,rad,photflux,psym=2,color='blue'
-percentdiff=((photflux-modelflux)/photflux)*100
-print,percentdiff
-;stop
-
-; Print the data-model contours comparison of the whole image
-
-MGE_print_contours, img>minlevel, ang, xc, yc, sol, $
-    FILE='hst_vucd3.ps', SCALE=scale, MAGRANGE=9, $
-    SIGMAPSF=sigmaPSF, NORMPSF=normPSF, BINNING=7
-
-; Print the data-model contours comparison of the central regions
-
-s = SIZE(img)
-img = img[xc-s[1]/9:xc+s[1]/9,yc-s[2]/9:yc+s[2]/9]
-MGE_print_contours, img, ang, s[1]/9, s[2]/9, sol, $
-    FILE='hst_vucd3_nuclear.ps', SCALE=scale, MAGRANGE=9, $
-                    SIGMAPSF=sigmaPSF, NORMPSF=normPSF
-
-;for i=1,40 do begin
-;   modelrad=(0.01*findgen((300*i))+0.01)
-;   temp=0.
-;   for j=0,n_elements(modelrad)-2 do begin
-;      for k=0,n_elements(modelweight)-1 do begin
-;         temp+= (modelweight[k]*exp(-(1./(2*modelsig[k]^2))*((modelrad[j])^2)))*(2*!PI*modelrad[j])*(modelrad[j+1]-modelrad[j]);multiply by q
-;      endfor
-;   endfor
-;   maxflux=temp
-;   if i gt 1 then begin
-;      minmodelrad=(0.01*findgen(300*(i-1))+0.01)
-;      temp2=0.
-;      for j=0,n_elements(minmodelrad)-2 do begin
-;         for k=0,n_elements(modelweight)-1 do begin
-;            temp2+= (modelweight[k]*exp(-(1./(2*modelsig[k]^2))*((minmodelrad[j])^2)))*(2*!PI*minmodelrad[j])*(minmodelrad[j+1]-minmodelrad[j]) ;multiply by q
-;         endfor
-;      endfor
-;      minflux=temp2
-;      modelflux2[i-1]=maxflux-minflux
-;   endif else begin
-;      modelflux2[i-1]=maxflux
-;   endelse
-   
-;endfor
-;stop
 END
 ;----------------------------------------------------------------------------
 ;----------------------------------------------------------------------------

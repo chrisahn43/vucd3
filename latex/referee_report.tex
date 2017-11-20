@@ -1,0 +1,172 @@
+\documentclass[11pt]{article}
+\def\asec{\ifmmode^{\prime\prime}\else$^{\prime\prime}$\fi}
+
+\begin{document}
+
+
+We'd like to thank the referee for a very useful report on our manuscript.   We found that your questions and suggestions were very instructive, and have resulted in significantly improving the paper. We present our responses to your report below. Although one of the points you listed was a minor issue regarding the BC03 SSP models, it lead to the most significant change in the paper. Because of this, we start with a summary of the major changes made, and then respond to the specific issues you raised. 
+\vspace{0.5cm}
+
+%================================================================================================================
+The referee listed our use of a conversion from HST filters to Johnson/SDSS filters for use in the BC03 SSP models as a minor issue. However, our mass models were all constructed making use of the $M/L$ from the SSP models. To correct for this problem, we had to create new mass profiles and re-run all of our dynamical models. Specifically, we added our HST filters to the BC03 SSP models, and then used our HST colors directly to determine a $M/L$, as suggested.
+
+In addition to creating new mass models, we also improved the luminosity models used by the dynamical modeling code to predict our observed kinematics.  Previously we had been using the luminosity profile from the HST data directly, but since our observations are in K band, and there are small color gradients, this is non-ideal.  Therefore, we used the BC03 model results to predict the F475W-K and F814W-K colors to create a K-band luminosity model.  While the overall change  in our results from both of these changes were minor, they are substantive improvements to the accuracy of the modeling.  Specific changes to the text are listed below:
+
+\begin{enumerate}
+\item The new mass models changed all of the derived stellar $M/L$s slightly. These changes are reflected throughout the paper anywhere we report $M/L$s or overall mass estimates. Furthermore, we derived errors on our stellar $M/L$s assuming $\pm0.02$ magnitude errors on our derived colors.
+\item We added a paragraph on page 24 explaining the technique used to derive the K-band luminosity profiles.
+\item A few sentences were added to the first paragraph of Section 4 explaining how the luminosity/mass profiles are used in the dynamical models.
+\item The explanations of the various dynamical models in Section 4 were changed to reflect the new K-band luminosity profiles.
+\item Figures 5, 6, 7, 9, and all best-fit model results including the black hole mass, $\Gamma$ and $\beta_z$ were updated to reflect the new luminosity/mass models.
+\end{enumerate}
+
+\newpage
+%================================================================================================================
+\noindent\makebox[\linewidth]{\rule{17cm}{1pt}}\vspace{-0.5cm}
+\begin{center}
+  \section{Major Points}
+\end{center}
+%\vspace{-0.5cm}
+\noindent\makebox[\linewidth]{\rule{17cm}{1pt}}
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.2cm}
+
+{\bf Referee:}Ê{\it The authors compare their best-fit isotropic model with BH with the best-fit anisotropic model with NO BH at all, concluding that the degree of anisotropy required to fit the data in the second case is too high to be likely. However a model with no BH seems unrealistic. The comparison should be done with models having, e.g., BH with mass expected from total mass - BH mass scaling relation given the present-day mass of the systems AND anisotropy. Or with a BH comprising 1\% of the total mass of the system instead of 10\%, and anysotropy. This may lead to a reasonable fit with non extreme values of the anisotropy, thus providing a viable alternative interpretation of the data.}Ê
+
+\vspace{0.2cm}
+{\bf Our Response:} We elected to add comparisons of the best-fit results of $\Gamma$ and $\beta_z$ assuming the black hole comprises 1\%, 5\%, and 10\% of the total dynamical mass. Our choice was motivated by the large scatter in BH mass scaling relations in this mass regime (Georgiev et al. 2016). In each of the above cases, the effect on $\beta_z$ is small and remains near the best-fit value for the no BH case. Futhermore, $\Gamma$ remains elevated (1.25-1.9) in the case of VUCD3. This is inconsistent with results from M60-UCD1 and local group globular clusters which all fall below 1. Specific changes to the text are listed below:
+\begin{enumerate}
+\item Colored lines were added to Figure 7 showing the best-fit dynamical model results assuming 1\%, 5\%, and 10\% black hole mass fractions.
+\item We also added Figure 8, showing the fits to the velocity dispersion profiles of these dynamical models.
+\item A discussion of the colored lines and their impact on our results was added to Section 5.2 and 6. Specifically:
+  \begin{itemize}
+  \item Added text to Section 5.2: However, we recognize that a lower value for the mass of the BH could lead to a more reasonable value for $\beta_z$. Therefore, we also tested what the best-fit values for $\beta_z$ and $\Gamma$ would be assuming the mass of the BH was 1\%, 5\% and 10\% of the total dynamical mass. The best-fit values are represented by the green (1\%), orange (5\%) and yellow (10\%) colored lines in Figure 7, and shown again as dispersion profile fits in Figure 8. In each case the dynamical models fit the dispersion profile well, but $\beta_z$ at each BH mass remains high at $0.3-0.4$ for VUCD3 and $0.5-0.6$ for M59cO, similar to the no BH case.  As discussed at the beginning of Section 5.1 high $\beta_z$ would be at odds with existing nuclei and the one previous UCD where this measurement has been made. Furthermore, $\Gamma$ remains elevated in the case of VUCD3. The best-fit no BH mass stellar $M/L$s would be a factor of 1.9 above the population estimate.
+    \item Added text to Section 6 when reporting results: Furthermore, a central massive BH making up 1\%, 5\%, and 10\% of the total dynamical mass also match the kinematic data, but leave $\beta_z$ relatively unchanged at $\sim 0.4$ for VUCD3 and $\sim 0.6$ for M59cO.
+    \item Added text to Section 6 conclusions: In systems with measured BH masses, the ratio of BH to NSC masses  ranges from 10$^{-4}$ to 10$^4$ (Georgiev et al. 2016), thus is consistent with the measurements here of roughly equal NSC and BH masses.
+  \end{itemize}
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it Also, what can be the role of uncertainties/errors in the inclination / 3D-shape of the systems in the determination of dynamical mass and BH mass?}
+
+\vspace{0.2cm}
+{\bf Our Response:} We tested the impact of including various inclination angles on the best-fit BH mass, $\beta_z$, and $\Gamma$ by making contour plots similar to Figure 7. The effect of the inclination angle is insignificant and doesn't change any of the overall results. We did not include these figures in the paper but added the text at the end of Section 4: \textit{However, the inclination angle has a negligible effect on the best-fit BH mass and $M/L$. }
+
+\newpage
+
+
+
+
+
+%================================================================================================================
+\noindent\makebox[\linewidth]{\rule{17cm}{1pt}}\vspace{-0.5cm}
+\begin{center}
+  \section{Minor Points}
+\end{center}
+\vspace{-0.5cm}
+\noindent\makebox[\linewidth]{\rule{17cm}{1pt}}
+
+\vspace{0.2cm}
+{\bf Referee:} {\it pag. 4 second par. Please specify quantitatively the meaning of "elevated" in the sentence "the dynamical mass appears to be elevated for almost all UCDs". Since, in general, dynamical masses larger than stellar/baryonic masses are interpreted as the presence of Cold Dark Matter it would be useful to remind the reader why this is not the case here. }
+
+\vspace{0.2cm}
+{\bf Our Response:} We added:
+\begin{itemize}
+\item to above mentioned paragraph: the dynamical mass appears to be elevated $\sim$50\% for almost all UCDs above $10^7 M_{\odot}$ when compared to the mass attributed to stars alone (e.g., Hasegan et al. 2005; Mieske et al. 2013.)
+\item New paragraph on dark matter following the above mentioned paragraph: In the context of the tidal stripping scenario, the elevated dynamical-to-stellar mass ratios could potentially be explained if UCDs still reside within progenitor dark matter haloes. However, to have a measurable effect on the kinematics of compact objects such as UCDs, the central density of the dark matter halo would need to be orders of magnitude higher than expected for dark matter halos of the stripped galaxies (see Fig.~18 of Tollerud et al. 2011). In addition, the search for an extended dark matter halo in Fornax UCD3, based on its velocity dispersion profile, yielded a non-detection (Frank et al. 2011).
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it pag. 5, second paragraph. The definition of Gamma is a bit ambiguous. $M_{dyn}/M_*$ would be clearer. On the other hand if the authors prefer to maintain a definition based on mass-to-light ratios, then $(M/L)_{dyn}/(M/L)_*$ would be more appropriate.}
+
+\vspace{0.2cm}
+{\bf Our Response:} Changed all instances of $M/L_{dyn}/M/L_{pop}$ to $(M/L)_{dyn}/(M/L)_*$ and all $M/L_{pop}$ to $M/L_*$.
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it Caption of Fig. 1 "The inset images are zoom-in HST archival images of each UCD (b)" the meaning of "(b)" is unclear ... a typo? Please provide the size of the insets in arcsec, for reference.}
+
+\vspace{0.2cm}
+{\bf Our Response:} Fixed typo. Added size of insets in arcseconds as red lines.  
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it Sect. 2.2. It is stated several time in this and other sections that the analysed spectra are low S/N but I was unable to find out a number. Plese provide the numerical value of the typical S/N per pixel BEFORE radial/azimuthal binning.}
+
+\vspace{0.2cm}
+{\bf Our Response:} Section 2.3. Added central pixel median $S/N$ per pixel: (central pixel median $S/N = 10$ per 2.13 $\AA$ pixel for VUCD3 and $S/N = 11$ per 2.13 $\AA$ pixel for M59cO)
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it pag 12 "These values are in agreement with the values found in previous work with Keck/ESI data using a 1.5$\asec$ aperture (Evstigneeva et al. 2007)." Please report the value of Estigneeva at al's estimate, as you do a few lines below for the comparison with Norris.}
+
+\vspace{0.2cm}
+{\bf Our Response:} Added: This dispersion value is in agreement with the measurement in Evstigneeva et al. (2007) of 41.2$\pm$1.5~km~s$^{-1}$ using Keck/ESI data and a $1.5\asec$ aperture. 
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it Fig. 2: it is not clear the meaning of the mean value of the residuals. I expect it should be about zero…}
+
+\vspace{0.2cm}
+{\bf Our Response:} These residuals have been offset for visibility. We added a sentence to the Figure 2 caption: For visibility, the zero point of the residuals are given as the green lines at 2510 counts and 4406 counts for VUCD3 and M59cO, respectively. 
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it pag. 16, first paragraph. Unclear. "to the free fits from the other filter" ? please explain better what has been actually done.}
+
+\vspace{0.2cm}
+{\bf Our Response:} We decided to re-write this entire paragraph. It now reads: Neither source is well fit using a single S\'ersic profile, and both appear to have two components (Evstigneeva et al. 2007; Chilingarian \& Mamon 2008). We therefore determine the surface brightness profile by fitting the data in each filter to a PSF-convolved, two component S\'ersic profile using the two-dimensional fitting algorithm, GALFIT (Peng et al. 2002). The parameters in our fits are shown in Table 2 and include, for each S\'ersic profile: the total magnitude ($m_{tot}$), effective radius ($R_e$), S\'ersic exponent ($n$), position angle ($PA$), and axis ratio ($q$). The fitting was done in two ways; first, we allowed all of the above free parameters to vary in both filters; these fits are henceforth referred to as the ``free'' fits. Next, we fitted the data again fixing the shape parameters of one filter to the best-fit model from the other filter; specifically, we fixed the effective radius, S\'ersic exponent, position angle and axis ratio, allowing only the total magnitude to vary.  For example, in VUCD3, our fixed fit in F814W was done by fixing the shape parameters to the best-fit free model in F606W. By using the same shape parameters, these ``fixed'' fits provide a well-defined color for the inner and outer S\'ersic profiles. 
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it Fig. 3 is difficult to read (the y label of the right panel is within the left panel!) and must be split in two larger panels. It may be useful also to use "more different" colors than purple and red for these lines. F475W does not seem the best choice to trace stellar mass: why the authors did not use F850LP? For VUCD3 F814W was (correctly) used.}
+
+\vspace{0.2cm}
+{\bf Our Response:} This figure was fixed and the purple line was changed to a cyan line for visibility. In both cases we no longer use the HST filters to trace the luminosity profile, although F814W (VUCD3) and F475W (M59cO) are still used to derive our luminosity and mass profiles. Our choice to use the F475W filter was motivated by the PSF problems in the F850LP filter. We added a note and citation, as a footnote, regarding this effect: We note that M59cO also has data in the F850LP filter available, which we use to model the color gradients as discussed below. However, due to the lack of a red cutoff in the filter, the PSF is difficult to characterize; therefore, we chose to use the S\'ersic fits to the F475W filter as the basis for our luminosity and mass models.
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it pag. 20 footnote 2: please provide a reference for the assumed absolute magnitudes of the Sun}
+
+\vspace{0.2cm}
+{\bf Our Response:} Added reference to footnote 2. 
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it pag. 21 It is hard to understand the reason to use BC93 model if they are not in the right photometric system. Since you have to use other models to convert, please use directly the set of models that provides ssps in the right filters.}
+
+\vspace{0.2cm}
+{\bf Our Response:} Response was discussed at the beginning of this report. 
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it Fig. 7: also in this case labels of right panels overlaps with left panels: please provide clearer plots.}
+
+\vspace{0.2cm}
+{\bf Our Response:} Updated all figures with overlap.  
+
+%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+
+{\bf Referee:}  {\it pag. 37. The case of M54 within the Sgr dSph galaxies seems to go in the opposite direction since the central BH, if any, is much less massive than what expected from the Sgr progenitor ($M=1e9 M_{sun}$), given the scaling relations (Ibata et al. 2009).}
+
+\vspace{0.2cm}
+{\bf Our Response:} We added a discussion of M54 to our final paragraph and discuss the limitations of BH demographics in low-mass host galaxies. Specifically: BH detections have been claimed in $\omega$~Cen (e.g., Noyola et al. 2010; Baumgardt et al. 2016), M54 (Ibata et al. 2009), and 47 Tucanae (Kiziltan et al 2017), but these remain controversial (van der Marel \& Anderson 2010; Haggard et al. 2013).  A BH has also been claimed in the Andromeda globular cluster G1 (Gebhardt et al. 2005), but accretion evidence for this BH has been elusive (Miller-Jones et al. 2012).  In all these cases, the mass fraction of the black hole is certainly lower than the mass fractions of $>$10\% that we find here.  The lack of knowledge of BH demographics in low-mass host galaxies prevents easy comparison with non-stripped systems. Nonetheless, nearby UCDs represent the best place to push towards lower masses; we have ongoing observing programs for six additional UCDs, including objects in M31 and NGC~5128. 
+
+
+\end{document}
